@@ -64,6 +64,9 @@ public class TextEditor {
         
     }//end constructor(File)
     
+    public RSyntaxTextArea getTextArea(){
+    	return this.textArea;
+    }//end getTextArea()
     /*
      * TODO
      */
@@ -145,7 +148,7 @@ public class TextEditor {
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_PHP);
         }else if("rb".equals(ext)){
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_RUBY);
-        }else if("xml".equals(ext)||"xslt".equals(ext)){
+        }else {//if("xml".equals(ext)||"xslt".equals(ext)){
             textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
         }
     

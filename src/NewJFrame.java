@@ -19,6 +19,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.ScrollPane;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +48,7 @@ public class NewJFrame extends JFrame {
     private ArrayList<TextEditor> arrTextEditors;
     private boolean isAnd=true;
     private boolean isSavingFlag=false;
-    private XSLTbuilder xsltBuilder;
+    private XsltBuilder xsltBuilder;
     private HashMap<Component,TextEditor> mapTabTE;
     /**
      * Creates new form NewJFrame
@@ -58,7 +59,7 @@ public class NewJFrame extends JFrame {
         initComponents();
         initFileTreeViewer();
         //initCodeTextArea();//jTabbedPane1's post-creation code
-        xsltBuilder = new XSLTbuilder();
+        xsltBuilder = new XsltBuilder();
         arrTextEditors = new ArrayList<TextEditor>();
         mapTabTE = new HashMap<Component,TextEditor>();
     }
@@ -124,13 +125,14 @@ public class NewJFrame extends JFrame {
      */
     private void initCodeTextArea(){
       textArea = new RSyntaxTextArea(60, 60);
-      textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+      //textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
       textArea.setCodeFoldingEnabled(true);
       textArea.setAntiAliasingEnabled(true);
       rScrollPane = new RTextScrollPane(textArea);
- 
+      textArea.setText("Welcome to the XSLT Rule Builder!\n"+
+    		  			"A Paysan Production.");
       
-     jTabbedPane1.addTab("XSLT", rScrollPane);  
+      jTabbedPane1.addTab("Welcome", rScrollPane);  
      jTabbedPane1.addKeyListener(new KeyAdapter(){
          public void keyPressed(KeyEvent evt){
              if(evt.isControlDown() && evt.getKeyCode() == KeyEvent.VK_S){
@@ -156,12 +158,7 @@ public class NewJFrame extends JFrame {
      *  Will eventually add to model the XSLT/XML structure of the file
      */
     private void initFileTreeViewer(){
-        /*
-        ProjectItemNode rootNode = ProjectTreeBuilder.build();
-        TreeModel model = new ProjectTrseeModel(rootNode); 
-        jTree1.setModel(model);
-        jTree1.setCellRenderer(new NodeRenderer());
-        */
+
         fileSystemModel = new FileSystemModel(new File("C:\\"));
         
         jTreeFileSystem.setModel(fileSystemModel);
@@ -228,7 +225,7 @@ public class NewJFrame extends JFrame {
 
         			Component tempC = jTabbedPane1.getSelectedComponent();
         			TextEditor tempTE = mapTabTE.get(tempC);
-        			if(!tempTE.isSaved()){
+        			if(tempTE!=null && !tempTE.isSaved()){
             			int choice = JOptionPane.showConfirmDialog(null, 
             					"'" + tab + "' has been modified."+"\nSave changes ?", 
             							"Confirmation Dialog", 
@@ -470,12 +467,15 @@ public class NewJFrame extends JFrame {
         System.out.println("entered on Rulename");
     }//GEN-LAST:event_jTextField1ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//event_jButton1ActionPerformed
         // TODO add your handling code here:
 
         
-    }//GEN-LAST:event_jButton1ActionPerformed
-
+    }//event_jButton1ActionPerformed
+    
+    /*
+     *  For when a user enters a query
+     */
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
 //activated by pressing enter by default
         // TODO add your handling code here:
@@ -485,11 +485,23 @@ public class NewJFrame extends JFrame {
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
             
             if(true){//use this to test for valid querys
-            
-                //jTextPane1.setText(inputString);
+            	Component tempC=jTabbedPane1.getSelectedComponent();
+                TextEditor tempTE=mapTabTE.get(tempC);
+                
                 xsltBuilder.addQuery(isAnd,inputString);
                 jTextPane1.setText(xsltBuilder.getXSLT());
                 textArea.setText(xsltBuilder.getXSLT());
+                
+                if(tempTE!=null){
+                	//XSLTbuilder tempXsltBuilder
+                	RSyntaxTextArea tempTA=tempTE.getTextArea();
+                	int i=tempTA.getCaretPosition();
+                	tempTA.insert(xsltBuilder.getXSLT(), i);
+                	System.out.println("enter at cursor pos: "+i);
+                }
+            	//jTextPane1.setText(inputString);
+                
+                
             }
             jTextField3.setText("");
         }
@@ -560,7 +572,7 @@ public class NewJFrame extends JFrame {
                 new NewJFrame().setVisible(true);
             }
         });
-    }
+    }//end main()
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton btnAndOr;
     private javax.swing.JToggleButton btnAndOr1;

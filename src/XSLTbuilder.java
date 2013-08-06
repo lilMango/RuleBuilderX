@@ -10,19 +10,19 @@ import java.util.ArrayList;
  *
  * @author mpaysan
  */
-public class XSLTbuilder {
+public class XsltBuilder {
     private ArrayList<Query> queryList;
     private RuleTemplate template;
     private String ruleName="";
     private String agency="";
-    public XSLTbuilder(String ruleName,String agency){
+    public XsltBuilder(String ruleName,String agency){
         template=new RuleTemplate();
         this.ruleName=ruleName;
         this.agency=agency;
         queryList=new ArrayList<Query>();
     }//end constructor(a,b)
     
-    public XSLTbuilder(){
+    public XsltBuilder(){
         template = new RuleTemplate();
         queryList=new ArrayList<Query>();
     }//end constructor()
