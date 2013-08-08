@@ -1,0 +1,42 @@
+Hello there!
+
+
+
+Installation:
+1) download the ANTL4-complete.jar
+2) setup eclipse IDE by just adding an "External JAR" under Project > Properties > Java Build Path
+3) run Hello example grammar
+
+
+
+Grammar Rules (*.g4 extension)
+-It's a left recursive grammar, meaning equal ranked syntaxes will parse left to right. For example A+B+C+D  is parsed as ((A+B)+C)+D
+
+-The more parents a node has, generally will have higher precedence. In other words, generally, the bottom of the file has more atomic pieces or atoms of higher precedence. This is where you see something wrapped in parenthesis, or the ID of a variable/field name since these are high precedence pieces.
+ As you progress upward you get more complex rules and lower precedence rules. 
+Notice how PEMDAS is written from the bottom-up.
+
+
+
+
+
+The Language:
+ID's are wrapped in {},squiggly braces.
+
+
+SimpleXSLTCompiler.java:
+processString(String args)
+processFile(String filename)
+load the Run configuration to have the Program arguments "-gui" or "-tree"
+
+
+
+===================================================================================
+
+Quick Start example of Antlr
+
+1)Create a grammar file  (*.g4)
+2)run "antlr4 <filename>.g4" at the command line. (assuming you did doskey for "java org.antlr.v4.Tool")
+
+Problems
+ The SimpleXslt* files and grammar can't be in a package

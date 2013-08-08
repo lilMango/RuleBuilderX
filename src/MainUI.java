@@ -3,6 +3,7 @@
  * and open the template in the editor.
  */
 
+import com.intuit.cg.lang.simplexslt.*;
 import com.intuit.cg.tools.FileSystemViewer.*;
 import com.intuit.cg.tools.rules.utils.TextEditor;
 import com.intuit.cg.tools.rules.utils.XsltBuilder;
@@ -53,7 +54,7 @@ import org.xml.sax.SAXException;
  *
  * @author mpaysan
  */
-public class NewJFrame extends JFrame {
+public class MainUI extends JFrame {
     private static int hi=0;
     KeyboardFocusManager keyManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
      
@@ -69,7 +70,7 @@ public class NewJFrame extends JFrame {
     /**
      * Creates new form NewJFrame
      */
-    public NewJFrame() {
+    public MainUI() {
         keyManager.addKeyEventDispatcher(new MyDispatcher()); // so ctrl-s is application wide
    
         initComponents();
@@ -552,6 +553,17 @@ public class NewJFrame extends JFrame {
         String inputString = jTextField3.getText();
         
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
+            String [] args={"-gui","-tree"};
+        	SimpleXsltCompiler myTestRig;
+        	
+        	try {
+				myTestRig= new SimpleXsltCompiler(args);
+				System.out.println("GEGE");
+				myTestRig.processString("{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             
             if(true){//use this to test for valid querys
             	Component tempC=jTabbedPane1.getSelectedComponent();
@@ -621,20 +633,20 @@ public class NewJFrame extends JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(MainUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new NewJFrame().setVisible(true);
+                new MainUI().setVisible(true);
             }
         });
     }//end main()

@@ -107,6 +107,7 @@ public class TextEditor {
     public void appendRule(boolean isAnd,String argStr){
     	
     	String conjunction=isAnd?"and":"or";
+    	int prevCaretPos=this.textArea.getCaretPosition();
     	
     	int currLine=-1;
     	String lines[]=this.textArea.getText().split("\n");
@@ -218,7 +219,7 @@ public class TextEditor {
     		
     		//print out buffer to textArea
     		this.textArea.setText(resultText.toString());
-    		
+    		this.textArea.setCaretPosition(prevCaretPos);
     	}else{ //in a completely new area
     		int curPos=this.textArea.getCaretPosition();
         	System.out.println("OUT!");
