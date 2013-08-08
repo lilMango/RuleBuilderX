@@ -1,3 +1,4 @@
+package com.intuit.cg.tools.rules.utils;
 
 import java.util.ArrayList;
 
@@ -22,11 +23,19 @@ public class XsltBuilder {
         queryList=new ArrayList<Query>();
     }//end constructor(a,b)
     
+
+    
     public XsltBuilder(){
         template = new RuleTemplate();
         queryList=new ArrayList<Query>();
     }//end constructor()
-
+    //using 
+    public XsltBuilder(String str){
+    	this(); //calls XsltBuilder()
+    	queryList.add(new Query(str));
+    	
+    }//end XsltBuilder(String)
+    
     public void setRulename(String ruleName){
         this.ruleName = ruleName;
     }//end setRulename
@@ -75,4 +84,17 @@ public class XsltBuilder {
         }
     }//end addQuery
     
-}//end class XSLTbuilder
+
+    
+    /*
+     * findBeginTag
+     * returns int: > 0 if it finds the nearest begin tag, else -1
+     */    		
+    private boolean findTag(String str,String line){
+    	if(str!=null && str.trim().equalsIgnoreCase("")){
+    		
+    	}
+    	
+    	return false;
+    }//end findTag(String)
+  }//end class XSLTbuilder

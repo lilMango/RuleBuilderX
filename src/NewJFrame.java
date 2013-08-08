@@ -4,6 +4,9 @@
  */
 
 import com.intuit.cg.tools.FileSystemViewer.*;
+import com.intuit.cg.tools.rules.utils.TextEditor;
+import com.intuit.cg.tools.rules.utils.XsltBuilder;
+
 import java.awt.Component;
 
 import javax.swing.JFrame;
@@ -11,9 +14,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.text.BadLocationException;
 import javax.swing.tree.TreeModel;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -24,12 +30,22 @@ import java.awt.ScrollPane;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.swing.components.ClosableTabbedPane;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 
 
@@ -62,10 +78,59 @@ public class NewJFrame extends JFrame {
         xsltBuilder = new XsltBuilder();
         arrTextEditors = new ArrayList<TextEditor>();
         mapTabTE = new HashMap<Component,TextEditor>();
-    }
+    }//end constructor()
 
+    private int findBeginTag(final String[] lines,int currLine){
+    	final String BEGIN_RULE="<!-- Begin";
+    	final String END_RULE="<!-- END";
+
+    	
+    	if(currLine==-1)return -1;
+    	
+    	int i=currLine;
+    	if(i>=lines.length){
+    		i=lines.length-1;
+    	}
+    	
+		//find beginning of xml rule
+		for(	;i>=0;i--){
+			if(lines[i].contains(END_RULE)){
+				return -1;
+			}else if(lines[i].contains(BEGIN_RULE)){
+				System.out.println("<!-- Begin @ line:"+i);
+				//argTA.replaceRange("I WILL WAIT\t",10,250);
+				
+				return i;
+			}
+		}//end for i
+    	
+    	return -1;
+    }//end findBeginTag(String[],int)
+    
+    private int findEndTag(final String[] lines, int currLine){
+    	final String BEGIN_RULE="<!-- Begin";
+    	final String END_RULE="<!-- End"; 
+       	if(currLine==-1)return -1;
+    	
+    	int j=currLine;
+    	
+		//Find the end of the xmlrule
+		for(	; j<lines.length;j++){
+			if(lines[j].contains(BEGIN_RULE)){
+				return -1;
+			}else if(lines[j].contains(END_RULE)){
+				System.out.println("End--> @ line:"+j);
+				return j;
+			}
+		}//end for j
+    	System.out.println("----");
+    	return -1;
+    }//end findEndTag(String[],int)
+ 
+    
+    
     /* Application Wide Key Listener
-     * 
+     * Is usually ran last compared to all listeners
      */
     private class MyDispatcher implements KeyEventDispatcher{
         public boolean dispatchKeyEvent(KeyEvent e){
@@ -100,7 +165,7 @@ public class NewJFrame extends JFrame {
                     isSavingFlag=false;
                 }
             } else if (e.getID() == KeyEvent.KEY_TYPED){
-                System.out.println("MyDispatcherType");//TODO No Adding duplicate tags, and saving marks the name with *
+                //System.out.println("MyDispatcherType");//TODO Also implement when you add through Query Bar
                 Component tempC = jTabbedPane1.getSelectedComponent();
                 int tempI = jTabbedPane1.getSelectedIndex();
                 TextEditor tempTE = mapTabTE.get(tempC);
@@ -129,11 +194,11 @@ public class NewJFrame extends JFrame {
       textArea.setCodeFoldingEnabled(true);
       textArea.setAntiAliasingEnabled(true);
       rScrollPane = new RTextScrollPane(textArea);
-      textArea.setText("Welcome to the XSLT Rule Builder!\n"+
-    		  			"A Paysan Production.");
-      
+      textArea.setText("Welcome to the XSLT Rule Builder!\n\n"+
+    		  			"A Bizarre Syntax Production.");
+      jTextPane1.setText("~Welcome to the Xslt Rul3 Generator~\nHappy Coding!=)");
       jTabbedPane1.addTab("Welcome", rScrollPane);  
-     jTabbedPane1.addKeyListener(new KeyAdapter(){
+      jTabbedPane1.addKeyListener(new KeyAdapter(){
          public void keyPressed(KeyEvent evt){
              if(evt.isControlDown() && evt.getKeyCode() == KeyEvent.VK_S){
                  System.out.println("Saved called while TAB is focused (not text)!");
@@ -150,8 +215,13 @@ public class NewJFrame extends JFrame {
                  mapTabTE.put(jTabbedPane1.getSelectedComponent(), temp);
              }
          }
-     });//end addKeyLisner
- 
+      });//end addKeyListener
+      jTabbedPane1.addChangeListener(new ChangeListener(){
+    	  public void stateChanged(ChangeEvent e){
+    		  System.out.println("Changed tabs to tab:"+jTabbedPane1.getSelectedIndex());
+    	  }
+      });//end addChangeListener()
+      
     }//end initCodeTextArea()
     /*
      *  Method called to initialize the JTree with the model of the XSLT files
@@ -244,7 +314,7 @@ public class NewJFrame extends JFrame {
             // closing will be canceled
         		}
         }	;
-        initCodeTextArea();
+        
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextPane1 = new javax.swing.JTextPane();
         jScrollPane3 = new javax.swing.JScrollPane();
@@ -255,6 +325,8 @@ public class NewJFrame extends JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
 
+        initCodeTextArea();
+        
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jTextField1.addActionListener(new java.awt.event.ActionListener() {
@@ -349,7 +421,7 @@ public class NewJFrame extends JFrame {
 
         jScrollPane1.setViewportView(jTextPane1);
 
-        jTabbedPane1.addTab("tab1", jScrollPane1);
+        //jTabbedPane1.addTab("Welcome", jScrollPane1);
 
         jScrollPane3.setViewportView(jTree2);
 
@@ -462,24 +534,21 @@ public class NewJFrame extends JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        // TODO add your handling code here:
         xsltBuilder.setRulename(jTextField1.getText());
         System.out.println("entered on Rulename");
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//event_jButton1ActionPerformed
-        // TODO add your handling code here:
-
+     
         
     }//event_jButton1ActionPerformed
     
     /*
-     *  For when a user enters a query
+     *  For when a user enters a query. query entering. enter a query
      */
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
 //activated by pressing enter by default
-        // TODO add your handling code here:
-        System.out.println("hi there you pressed enter in the query field");
+         System.out.println("hi there you pressed enter in the query field");
         String inputString = jTextField3.getText();
         
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
@@ -493,12 +562,8 @@ public class NewJFrame extends JFrame {
                 textArea.setText(xsltBuilder.getXSLT());
                 
                 if(tempTE!=null){
-                	//XSLTbuilder tempXsltBuilder
-                	RSyntaxTextArea tempTA=tempTE.getTextArea();
-                	int i=tempTA.getCaretPosition();
-                	tempTA.insert(xsltBuilder.getXSLT(), i);
-                	System.out.println("enter at cursor pos: "+i);
-                }
+                	tempTE.appendRule(isAnd,inputString);
+                }//end tempTE!=null
             	//jTextPane1.setText(inputString);
                 
                 

@@ -1,3 +1,4 @@
+package com.intuit.cg.tools.rules.utils;
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -20,7 +21,8 @@ public class RuleTemplate {
                                         "<!-- Begin $ruleName -->\n"+
                                            "   <xsl:if test=\"$test\">\n"+
                                                 ERRORS_XSLT+//"$"+
-                                           "   </xsl:if>\n"; 
+                                           "   </xsl:if>\n"+
+                                                "<!-- End $ruleName -->"; 
     
     //parse strings at ? for errorCode and rejectingAgency
 
