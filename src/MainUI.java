@@ -67,6 +67,8 @@ public class MainUI extends JFrame {
     private boolean isSavingFlag=false;
     private XsltBuilder xsltBuilder;
     private HashMap<Component,TextEditor> mapTabTE;
+    
+    private SimpleXsltCompiler simpleXsltCompiler;
     /**
      * Creates new form NewJFrame
      */
@@ -79,56 +81,16 @@ public class MainUI extends JFrame {
         xsltBuilder = new XsltBuilder();
         arrTextEditors = new ArrayList<TextEditor>();
         mapTabTE = new HashMap<Component,TextEditor>();
+        
+        String[] args={"-gui","-tree"};
+        try {
+			simpleXsltCompiler= new SimpleXsltCompiler(args);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }//end constructor()
 
-    private int findBeginTag(final String[] lines,int currLine){
-    	final String BEGIN_RULE="<!-- Begin";
-    	final String END_RULE="<!-- END";
-
-    	
-    	if(currLine==-1)return -1;
-    	
-    	int i=currLine;
-    	if(i>=lines.length){
-    		i=lines.length-1;
-    	}
-    	
-		//find beginning of xml rule
-		for(	;i>=0;i--){
-			if(lines[i].contains(END_RULE)){
-				return -1;
-			}else if(lines[i].contains(BEGIN_RULE)){
-				System.out.println("<!-- Begin @ line:"+i);
-				//argTA.replaceRange("I WILL WAIT\t",10,250);
-				
-				return i;
-			}
-		}//end for i
-    	
-    	return -1;
-    }//end findBeginTag(String[],int)
-    
-    private int findEndTag(final String[] lines, int currLine){
-    	final String BEGIN_RULE="<!-- Begin";
-    	final String END_RULE="<!-- End"; 
-       	if(currLine==-1)return -1;
-    	
-    	int j=currLine;
-    	
-		//Find the end of the xmlrule
-		for(	; j<lines.length;j++){
-			if(lines[j].contains(BEGIN_RULE)){
-				return -1;
-			}else if(lines[j].contains(END_RULE)){
-				System.out.println("End--> @ line:"+j);
-				return j;
-			}
-		}//end for j
-    	System.out.println("----");
-    	return -1;
-    }//end findEndTag(String[],int)
- 
-    
     
     /* Application Wide Key Listener
      * Is usually ran last compared to all listeners
@@ -553,16 +515,14 @@ public class MainUI extends JFrame {
         String inputString = jTextField3.getText();
         
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
-            String [] args={"-gui","-tree"};
-        	SimpleXsltCompiler myTestRig;
         	
         	try {
-				myTestRig= new SimpleXsltCompiler(args);
-				System.out.println("GEGE");
-				myTestRig.processString("{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
+				simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
+				simpleXsltCompiler.translateToXslt(inputString);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				System.out.println("There was an error=======");
 			}
             
             if(true){//use this to test for valid querys
@@ -626,7 +586,7 @@ public class MainUI extends JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                System.out.println(info.getName());
+                //System.out.println(info.getName());
                 if ("Windows".equals(info.getName()) ) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;

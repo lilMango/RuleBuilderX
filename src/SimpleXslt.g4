@@ -2,29 +2,17 @@ grammar SimpleXslt;
 
 //basically work like enums, since token assignments are deprevated in v4.  tokens { OR='or'; AND, TRUE, FALSE, VAR}	
 
-mystart  : 
-	'hello' ID+ NUMBER*         // match keyword hello followed by an identifier
-	| block
-	;
 
-
-block	:
+mystart	:
 	| assignment
 	| expr
+
 	;
 	
 assignment	:
 	'var' ID T_EQ expr
-//	| compare
 	;
 
-/*
-compare	:
-	expr equality expr1
-	expr relation expr1
-	|	expr1
-	;
-*/
 
 /*designed this way so that "A+B+C+D" is parsed as "((A+B)+C)+D" aka left associative or left recursive*/
 expr	:
@@ -55,7 +43,7 @@ expr4 :
 expr5 : 
 	expr5 mulOp atom
 	| atom
-	| RESERVED_WORDS
+//	| RESERVED_WORDS
 	;	
 	
 equality	:
@@ -76,10 +64,12 @@ mulOp	:
 	|  T_SLASH
 	;
 	
-atom	:
-	T_LPAREN expr T_RPAREN
-	| NUMBER
-	| ID
+atom:
+	T_LPAREN expr T_RPAREN 
+	| NUMBER 				
+	| ID 
+	| StringLiteral
+	| RESERVED_WORDS
 	;
 
 /*DECLARED HERE EARLY TO NOT BE CONFUSED AS KEYWORDS
@@ -91,13 +81,19 @@ RESERVED_WORDS:
 T_OR : 'or' | '||' ;
 T_AND: 'and' | '&&';
 	
+StringLiteral	:
+	'"' (~('\\'|'"'))* '"'
+	|'\'' (~('\\'|'"'))* '\''
+	
+	;
+	
 /*Naming conventions */
 ID : T_LSQUIGBRACE (NAMECHAR)(NAMECHAR | DIGIT)* T_RSQUIGBRACE ;// ([^'-']$) ,not ending with '-'
 
 
 fragment NAMECHAR : 
 	  LETTER 
-	| '\\' | '_' | T_SLASH | '-'
+	| '\\' | '_' | T_SLASH | '-' | '.'
 	;
 
 fragment LETTER : [a-zA-Z];
@@ -120,7 +116,7 @@ T_LSQUIGBRACE : '{';
 T_RSQUIGBRACE : '}';
 
 
-T_PLUS : '+' ;
+T_PLUS  : '+' ;
 T_MINUS : '-' ;
 T_STAR : '*' ;
 T_SLASH : '/' ;

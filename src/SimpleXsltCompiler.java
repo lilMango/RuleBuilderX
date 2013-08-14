@@ -1,7 +1,10 @@
 
 
 
+
+
 import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DiagnosticErrorListener;
@@ -10,6 +13,9 @@ import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.atn.PredictionMode;
+
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.tree.*;
 
 import javax.print.PrintException;
 
@@ -247,6 +253,7 @@ public class SimpleXsltCompiler {
 			}
 			catch (NoSuchMethodException nsme) {
 				System.err.println("No method for rule "+startRuleName+" or it has arguments");
+				System.err.println("ZOMGORZS");
 			}
 		}
 		finally {
@@ -255,6 +262,35 @@ public class SimpleXsltCompiler {
 		}
 	}//end process(Lexer,parser,is,r)
 	
+	public String translateToXslt(String arg){
+		//getting CharStream of input string
+		InputStream is = new ByteArrayInputStream(arg.getBytes());
+		Reader r;		
+		r = new InputStreamReader(is);
+		
+		ANTLRInputStream input=null;
+		try {
+			input = new ANTLRInputStream(r);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		SimpleXsltLexer lexer= new SimpleXsltLexer(input);
+		//lexer.setInputStream(input);
+		
+		//Parser feeds off tokens to make of language constructs
+		SimpleXsltParser parser= new SimpleXsltParser(new CommonTokenStream(lexer));
+		parser.setErrorHandler(new BailErrorStrategy());
+		parser.addErrorListener(new DiagnosticErrorListener());
+		
+		//Create subtree starting at rule 'mystart'
+		ParseTree tree = parser.mystart();
+		XsltEmitter xsltEmitter=new XsltEmitter();
+		ParseTreeWalker.DEFAULT.walk(xsltEmitter,tree);
+		return xsltEmitter.getXslt(tree);//TODO
+	}//end myProcess
+	
+	/*
 	public static void main(String[] args) throws Exception{
 		
 		SimpleXsltCompiler myTestRig= new SimpleXsltCompiler(args);
@@ -269,5 +305,5 @@ public class SimpleXsltCompiler {
 			
 		}
 	}//end main
-	
+	*/
 }//end class SimpleXsltCompiler

@@ -17,7 +17,8 @@ Grammar Rules (*.g4 extension)
 Notice how PEMDAS is written from the bottom-up.
 
 
-
+-rerun Antlr on *.g4 every time you change the grammar file.
+Arguments: "antlr4 -package <package route> -visitor"
 
 
 The Language:
@@ -37,6 +38,11 @@ Quick Start example of Antlr
 
 1)Create a grammar file  (*.g4)
 2)run "antlr4 <filename>.g4" at the command line. (assuming you did doskey for "java org.antlr.v4.Tool")
+3)javac <filename>*.java
+4)grun <filename> <first rule name in the grammar file> <-gui>
+5)type standard in
+6)EOF by pressing ctrl-z followed by enter
+
 
 Problems
  The SimpleXslt* files and grammar can't be in a package
