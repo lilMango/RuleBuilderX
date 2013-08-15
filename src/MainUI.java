@@ -515,28 +515,31 @@ public class MainUI extends JFrame {
         String inputString = jTextField3.getText();
         
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
-        	
+        	String xsltString="";
         	try {
-				simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
-				simpleXsltCompiler.translateToXslt(inputString);
+				//simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
+				xsltString=simpleXsltCompiler.translateToXslt(inputString);//TODO
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("There was an error=======");
+				xsltString=null;
 			}
-            
-            if(true){//use this to test for valid querys
+        	System.out.println(xsltString);
+        	//System.out.println(xsltString.length());
+            System.out.println("IsNUll? "+(xsltString instanceof Object));//xsltString.equals("null"));
+            if(xsltString!=null || !"null".equals(xsltString)){//use this to test for valid querys
             	Component tempC=jTabbedPane1.getSelectedComponent();
                 TextEditor tempTE=mapTabTE.get(tempC);
                 
-                xsltBuilder.addQuery(isAnd,inputString);
+                xsltBuilder.addQuery(isAnd,xsltString);
                 jTextPane1.setText(xsltBuilder.getXSLT());
                 textArea.setText(xsltBuilder.getXSLT());
                 
                 if(tempTE!=null){
-                	tempTE.appendRule(isAnd,inputString);
+                	tempTE.appendRule(isAnd,xsltString);
                 }//end tempTE!=null
-            	//jTextPane1.setText(inputString);
+            	//jTextPane1.setText(xsltString);
                 
                 
             }

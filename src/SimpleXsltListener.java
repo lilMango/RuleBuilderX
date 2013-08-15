@@ -1,14 +1,11 @@
-
-
-
-//Generated from SimpleXslt.g4 by ANTLR 4.1
+// Generated from SimpleXslt.g4 by ANTLR 4.1
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /**
-* This interface defines a complete listener for a parse tree produced by
-* {@link SimpleXsltParser}.
-*/
+ * This interface defines a complete listener for a parse tree produced by
+ * {@link SimpleXsltParser}.
+ */
 public interface SimpleXsltListener extends ParseTreeListener {
 	/**
 	 * Enter a parse tree produced by {@link SimpleXsltParser#mulOp}.
@@ -119,17 +116,6 @@ public interface SimpleXsltListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpr5(@NotNull SimpleXsltParser.Expr5Context ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link SimpleXsltParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void enterBlock(@NotNull SimpleXsltParser.BlockContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link SimpleXsltParser#block}.
-	 * @param ctx the parse tree
-	 */
-	void exitBlock(@NotNull SimpleXsltParser.BlockContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link SimpleXsltParser#expr}.

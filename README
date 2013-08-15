@@ -29,7 +29,7 @@ SimpleXSLTCompiler.java:
 processString(String args)
 processFile(String filename)
 load the Run configuration to have the Program arguments "-gui" or "-tree"
-
+translateToXslt(String args) - returns translated XSLT code as string
 
 
 ===================================================================================

@@ -262,7 +262,11 @@ public class SimpleXsltCompiler {
 		}
 	}//end process(Lexer,parser,is,r)
 	
-	public String translateToXslt(String arg){
+	/*
+	 * Parameters: String - Simple Xslt string or anything that goes into query box
+	 * Returns: String - XSLT translated
+	 */
+	public String translateToXslt(String arg)throws Exception{
 		//getting CharStream of input string
 		InputStream is = new ByteArrayInputStream(arg.getBytes());
 		Reader r;		
@@ -287,8 +291,8 @@ public class SimpleXsltCompiler {
 		ParseTree tree = parser.mystart();
 		XsltEmitter xsltEmitter=new XsltEmitter();
 		ParseTreeWalker.DEFAULT.walk(xsltEmitter,tree);
-		return xsltEmitter.getXslt(tree);//TODO
-	}//end myProcess
+		return xsltEmitter.getXslt(tree);
+	}//end translateToXslt(String)
 	
 	/*
 	public static void main(String[] args) throws Exception{
