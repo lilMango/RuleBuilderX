@@ -1,6 +1,6 @@
 package com.intuit.cg.lang.simplexslt;
 
-class ExprSTO extends STO
+public class ExprSTO extends STO
 {
     //----------------------------------------------------------------
     //

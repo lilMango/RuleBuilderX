@@ -116,23 +116,46 @@ public class XsltEmitter extends SimpleXsltBaseListener{
 	 //AddOp
 	 public void enterExpr4(@NotNull SimpleXsltParser.Expr4Context ctx) { }
 	 public void exitExpr4(@NotNull SimpleXsltParser.Expr4Context ctx) {
+		 System.out.println("Expr4:"+ctx.getChildCount());
+		 int childCount=ctx.getChildCount();
+		 
 		 if(ctx.getChildCount()==3){//expr + expr1
 			 String left=getXslt(ctx.getChild(0));
 			 String op=ctx.getChild(1).getText();
 			 String right=getXslt(ctx.getChild(2));
 			 
-			 if("+".equals(op)){
-				 op="sum";
-			 } else {
-				 op="difference";
-			 }
-			 String translation=op+"("+left+","+right+")";
+			 String translation="xs:decimal"+"("+left+" "+op+" "+right+")";
+			 
 			 setXslt(ctx,translation);
 			 
 			 System.out.println(op+"\t"+getXslt(ctx));
 		 }
+		/* 
+		 else if(childCount>1&&((childCount&1)==1)  ){
+			 String op="sum";
+			 StringBuffer translation=new StringBuffer();
+
+			 int i=0;
+			 
+			 translation.append("xs:decimal("+ctx.getChild(i));
+			
+			 while(i<childCount){
+				 i+=2;
+					
+				 translation.append(ctx.getChild(i-1).getText()+","+getXslt(ctx.getChild(i)));
+				 
+			 }//end while
+			 
+			 translation.append(")");
+			 setXslt(ctx,translation.toString());
+			 
+			 System.out.println(op+"\t"+getXslt(ctx));
+		 
+		 }*/
 		 else{	
+			 //setXslt(ctx,ctx.getChild(0).getText());
 			 setXslt(ctx,getXslt(ctx.getChild(0))); 
+			 System.out.println(getXslt(ctx));
 		 }
 	 }//end exitExpr4
 
@@ -177,8 +200,6 @@ public class XsltEmitter extends SimpleXsltBaseListener{
 	 public void exitMulOp(@NotNull SimpleXsltParser.MulOpContext ctx) {
 		 setXslt(ctx,getXslt(ctx.getChild(0))); 
 	 }//end exitMulOp
-
-
 
 
 

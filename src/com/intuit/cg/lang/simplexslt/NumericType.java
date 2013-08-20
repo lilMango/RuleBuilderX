@@ -6,7 +6,7 @@ public abstract class NumericType extends BasicType{
     }
 
     public boolean isCastable(Type t){
-        if((t instanceof IntType)||(t instanceof DecimalType)||(t instanceof BoolType))
+        if((t instanceof IntType)||(t instanceof FloatType)||(t instanceof BoolType))
             return true;
         return false;
     }//end isCastable()

@@ -1,6 +1,6 @@
 package com.intuit.cg.lang.simplexslt;
 
-class ConstSTO extends STO
+public class ConstSTO extends STO
 {
     //----------------------------------------------------------------
     //

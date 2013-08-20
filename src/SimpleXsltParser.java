@@ -14,15 +14,16 @@ public class SimpleXsltParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__2=1, T__1=2, T__0=3, RESERVED_WORDS=4, T_OR=5, T_AND=6, StringLiteral=7, 
-		ID=8, NUMBER=9, DIGIT=10, T_LBRACE=11, T_RBRACE=12, T_LPAREN=13, T_RPAREN=14, 
-		T_LSQUIGBRACE=15, T_RSQUIGBRACE=16, T_PLUS=17, T_MINUS=18, T_STAR=19, 
-		T_SLASH=20, T_EQ=21, T_NEQ=22, T_LTE=23, T_LT=24, T_GTE=25, T_GT=26, WS=27;
+		T__2=1, T__1=2, T__0=3, RESERVED_WORDS=4, T_BOOLS=5, T_OR=6, T_AND=7, 
+		T_STRING_LITERAL=8, T_CHAR_LITERAL=9, ID=10, NUMBER=11, DIGIT=12, T_LBRACE=13, 
+		T_RBRACE=14, T_LPAREN=15, T_RPAREN=16, T_LSQUIGBRACE=17, T_RSQUIGBRACE=18, 
+		T_PLUS=19, T_MINUS=20, T_STAR=21, T_SLASH=22, T_EQ=23, T_NEQ=24, T_LTE=25, 
+		T_LT=26, T_GTE=27, T_GT=28, WS=29;
 	public static final String[] tokenNames = {
-		"<INVALID>", "'and'", "'or'", "'var'", "RESERVED_WORDS", "T_OR", "T_AND", 
-		"StringLiteral", "ID", "NUMBER", "DIGIT", "'['", "']'", "'('", "')'", 
-		"'{'", "'}'", "'+'", "'-'", "'*'", "'/'", "'='", "'!='", "'<='", "'<'", 
-		"'>='", "'>'", "WS"
+		"<INVALID>", "'and'", "'or'", "'var'", "RESERVED_WORDS", "T_BOOLS", "T_OR", 
+		"T_AND", "T_STRING_LITERAL", "T_CHAR_LITERAL", "ID", "NUMBER", "DIGIT", 
+		"'['", "']'", "'('", "')'", "'{'", "'}'", "'+'", "'-'", "'*'", "'/'", 
+		"'='", "'!='", "'<='", "'<'", "'>='", "'>'", "WS"
 	};
 	public static final int
 		RULE_mystart = 0, RULE_assignment = 1, RULE_expr = 2, RULE_expr1 = 3, 
@@ -68,6 +69,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitMystart(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitMystart(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MystartContext mystart() throws RecognitionException {
@@ -88,7 +94,8 @@ public class SimpleXsltParser extends Parser {
 				}
 				break;
 			case RESERVED_WORDS:
-			case StringLiteral:
+			case T_STRING_LITERAL:
+			case T_CHAR_LITERAL:
 			case ID:
 			case NUMBER:
 			case T_LPAREN:
@@ -129,6 +136,11 @@ public class SimpleXsltParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitAssignment(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitAssignment(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -177,6 +189,11 @@ public class SimpleXsltParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitExpr(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -258,6 +275,11 @@ public class SimpleXsltParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitExpr1(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitExpr1(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -342,6 +364,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitExpr2(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitExpr2(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Expr2Context expr2(int _p) throws RecognitionException {
@@ -418,6 +445,11 @@ public class SimpleXsltParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitExpr3(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitExpr3(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -496,6 +528,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitExpr4(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitExpr4(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Expr4Context expr4(int _p) throws RecognitionException {
@@ -573,6 +610,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitExpr5(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitExpr5(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Expr5Context expr5(int _p) throws RecognitionException {
@@ -640,6 +682,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitEquality(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitEquality(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EqualityContext equality() throws RecognitionException {
@@ -685,6 +732,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitRelation(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitRelation(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RelationContext relation() throws RecognitionException {
@@ -727,6 +779,11 @@ public class SimpleXsltParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitAddOp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitAddOp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -771,6 +828,11 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitMulOp(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitMulOp(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MulOpContext mulOp() throws RecognitionException {
@@ -806,8 +868,9 @@ public class SimpleXsltParser extends Parser {
 		}
 		public TerminalNode T_LPAREN() { return getToken(SimpleXsltParser.T_LPAREN, 0); }
 		public TerminalNode ID() { return getToken(SimpleXsltParser.ID, 0); }
+		public TerminalNode T_CHAR_LITERAL() { return getToken(SimpleXsltParser.T_CHAR_LITERAL, 0); }
 		public TerminalNode T_RPAREN() { return getToken(SimpleXsltParser.T_RPAREN, 0); }
-		public TerminalNode StringLiteral() { return getToken(SimpleXsltParser.StringLiteral, 0); }
+		public TerminalNode T_STRING_LITERAL() { return getToken(SimpleXsltParser.T_STRING_LITERAL, 0); }
 		public TerminalNode NUMBER() { return getToken(SimpleXsltParser.NUMBER, 0); }
 		public AtomContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -821,13 +884,18 @@ public class SimpleXsltParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof SimpleXsltListener ) ((SimpleXsltListener)listener).exitAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SimpleXsltVisitor ) return ((SimpleXsltVisitor<? extends T>)visitor).visitAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AtomContext atom() throws RecognitionException {
 		AtomContext _localctx = new AtomContext(_ctx, getState());
 		enterRule(_localctx, 24, RULE_atom);
 		try {
-			setState(122);
+			setState(123);
 			switch (_input.LA(1)) {
 			case T_LPAREN:
 				enterOuterAlt(_localctx, 1);
@@ -849,16 +917,22 @@ public class SimpleXsltParser extends Parser {
 				setState(119); match(ID);
 				}
 				break;
-			case StringLiteral:
+			case T_STRING_LITERAL:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(120); match(StringLiteral);
+				setState(120); match(T_STRING_LITERAL);
+				}
+				break;
+			case T_CHAR_LITERAL:
+				enterOuterAlt(_localctx, 5);
+				{
+				setState(121); match(T_CHAR_LITERAL);
 				}
 				break;
 			case RESERVED_WORDS:
-				enterOuterAlt(_localctx, 5);
+				enterOuterAlt(_localctx, 6);
 				{
-				setState(121); match(RESERVED_WORDS);
+				setState(122); match(RESERVED_WORDS);
 				}
 				break;
 			default:
@@ -930,36 +1004,37 @@ public class SimpleXsltParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\uacf5\uee8c\u4f5d\u8b0d\u4a45\u78bd\u1b2f\u3378\3\35\177\4\2\t\2\4"+
-		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
-		"\13\4\f\t\f\4\r\t\r\4\16\t\16\3\2\3\2\3\2\5\2 \n\2\3\3\3\3\3\3\3\3\3\3"+
-		"\3\4\3\4\3\4\3\4\3\4\3\4\7\4-\n\4\f\4\16\4\60\13\4\3\5\3\5\3\5\3\5\3\5"+
-		"\3\5\7\58\n\5\f\5\16\5;\13\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\7\6D\n\6\f\6"+
-		"\16\6G\13\6\3\7\3\7\3\7\3\7\3\7\3\7\3\7\7\7P\n\7\f\7\16\7S\13\7\3\b\3"+
-		"\b\3\b\3\b\3\b\3\b\3\b\7\b\\\n\b\f\b\16\b_\13\b\3\t\3\t\3\t\3\t\3\t\3"+
-		"\t\3\t\7\th\n\t\f\t\16\tk\13\t\3\n\3\n\3\13\3\13\3\f\3\f\3\r\3\r\3\16"+
-		"\3\16\3\16\3\16\3\16\3\16\3\16\3\16\5\16}\n\16\3\16\2\17\2\4\6\b\n\f\16"+
-		"\20\22\24\26\30\32\2\b\4\2\4\4\7\7\4\2\3\3\b\b\3\2\27\30\3\2\31\34\3\2"+
-		"\23\24\3\2\25\26}\2\37\3\2\2\2\4!\3\2\2\2\6&\3\2\2\2\b\61\3\2\2\2\n<\3"+
-		"\2\2\2\fH\3\2\2\2\16T\3\2\2\2\20`\3\2\2\2\22l\3\2\2\2\24n\3\2\2\2\26p"+
-		"\3\2\2\2\30r\3\2\2\2\32|\3\2\2\2\34 \3\2\2\2\35 \5\4\3\2\36 \5\6\4\2\37"+
-		"\34\3\2\2\2\37\35\3\2\2\2\37\36\3\2\2\2 \3\3\2\2\2!\"\7\5\2\2\"#\7\n\2"+
-		"\2#$\7\27\2\2$%\5\6\4\2%\5\3\2\2\2&\'\b\4\1\2\'(\5\b\5\2(.\3\2\2\2)*\6"+
-		"\4\2\3*+\t\2\2\2+-\5\b\5\2,)\3\2\2\2-\60\3\2\2\2.,\3\2\2\2./\3\2\2\2/"+
-		"\7\3\2\2\2\60.\3\2\2\2\61\62\b\5\1\2\62\63\5\n\6\2\639\3\2\2\2\64\65\6"+
-		"\5\3\3\65\66\t\3\2\2\668\5\n\6\2\67\64\3\2\2\28;\3\2\2\29\67\3\2\2\29"+
-		":\3\2\2\2:\t\3\2\2\2;9\3\2\2\2<=\b\6\1\2=>\5\f\7\2>E\3\2\2\2?@\6\6\4\3"+
-		"@A\5\22\n\2AB\5\f\7\2BD\3\2\2\2C?\3\2\2\2DG\3\2\2\2EC\3\2\2\2EF\3\2\2"+
-		"\2F\13\3\2\2\2GE\3\2\2\2HI\b\7\1\2IJ\5\16\b\2JQ\3\2\2\2KL\6\7\5\3LM\5"+
-		"\24\13\2MN\5\16\b\2NP\3\2\2\2OK\3\2\2\2PS\3\2\2\2QO\3\2\2\2QR\3\2\2\2"+
-		"R\r\3\2\2\2SQ\3\2\2\2TU\b\b\1\2UV\5\20\t\2V]\3\2\2\2WX\6\b\6\3XY\5\26"+
-		"\f\2YZ\5\20\t\2Z\\\3\2\2\2[W\3\2\2\2\\_\3\2\2\2][\3\2\2\2]^\3\2\2\2^\17"+
-		"\3\2\2\2_]\3\2\2\2`a\b\t\1\2ab\5\32\16\2bi\3\2\2\2cd\6\t\7\3de\5\30\r"+
-		"\2ef\5\32\16\2fh\3\2\2\2gc\3\2\2\2hk\3\2\2\2ig\3\2\2\2ij\3\2\2\2j\21\3"+
-		"\2\2\2ki\3\2\2\2lm\t\4\2\2m\23\3\2\2\2no\t\5\2\2o\25\3\2\2\2pq\t\6\2\2"+
-		"q\27\3\2\2\2rs\t\7\2\2s\31\3\2\2\2tu\7\17\2\2uv\5\6\4\2vw\7\20\2\2w}\3"+
-		"\2\2\2x}\7\13\2\2y}\7\n\2\2z}\7\t\2\2{}\7\6\2\2|t\3\2\2\2|x\3\2\2\2|y"+
-		"\3\2\2\2|z\3\2\2\2|{\3\2\2\2}\33\3\2\2\2\n\37.9EQ]i|";
+		"\3\uacf5\uee8c\u4f5d\u8b0d\u4a45\u78bd\u1b2f\u3378\3\37\u0080\4\2\t\2"+
+		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
+		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\3\2\3\2\3\2\5\2 \n\2\3\3\3\3\3\3\3\3\3"+
+		"\3\3\4\3\4\3\4\3\4\3\4\3\4\7\4-\n\4\f\4\16\4\60\13\4\3\5\3\5\3\5\3\5\3"+
+		"\5\3\5\7\58\n\5\f\5\16\5;\13\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\7\6D\n\6\f"+
+		"\6\16\6G\13\6\3\7\3\7\3\7\3\7\3\7\3\7\3\7\7\7P\n\7\f\7\16\7S\13\7\3\b"+
+		"\3\b\3\b\3\b\3\b\3\b\3\b\7\b\\\n\b\f\b\16\b_\13\b\3\t\3\t\3\t\3\t\3\t"+
+		"\3\t\3\t\7\th\n\t\f\t\16\tk\13\t\3\n\3\n\3\13\3\13\3\f\3\f\3\r\3\r\3\16"+
+		"\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\5\16~\n\16\3\16\2\17\2\4\6\b"+
+		"\n\f\16\20\22\24\26\30\32\2\b\4\2\4\4\b\b\4\2\3\3\t\t\3\2\31\32\3\2\33"+
+		"\36\3\2\25\26\3\2\27\30\177\2\37\3\2\2\2\4!\3\2\2\2\6&\3\2\2\2\b\61\3"+
+		"\2\2\2\n<\3\2\2\2\fH\3\2\2\2\16T\3\2\2\2\20`\3\2\2\2\22l\3\2\2\2\24n\3"+
+		"\2\2\2\26p\3\2\2\2\30r\3\2\2\2\32}\3\2\2\2\34 \3\2\2\2\35 \5\4\3\2\36"+
+		" \5\6\4\2\37\34\3\2\2\2\37\35\3\2\2\2\37\36\3\2\2\2 \3\3\2\2\2!\"\7\5"+
+		"\2\2\"#\7\f\2\2#$\7\31\2\2$%\5\6\4\2%\5\3\2\2\2&\'\b\4\1\2\'(\5\b\5\2"+
+		"(.\3\2\2\2)*\6\4\2\3*+\t\2\2\2+-\5\b\5\2,)\3\2\2\2-\60\3\2\2\2.,\3\2\2"+
+		"\2./\3\2\2\2/\7\3\2\2\2\60.\3\2\2\2\61\62\b\5\1\2\62\63\5\n\6\2\639\3"+
+		"\2\2\2\64\65\6\5\3\3\65\66\t\3\2\2\668\5\n\6\2\67\64\3\2\2\28;\3\2\2\2"+
+		"9\67\3\2\2\29:\3\2\2\2:\t\3\2\2\2;9\3\2\2\2<=\b\6\1\2=>\5\f\7\2>E\3\2"+
+		"\2\2?@\6\6\4\3@A\5\22\n\2AB\5\f\7\2BD\3\2\2\2C?\3\2\2\2DG\3\2\2\2EC\3"+
+		"\2\2\2EF\3\2\2\2F\13\3\2\2\2GE\3\2\2\2HI\b\7\1\2IJ\5\16\b\2JQ\3\2\2\2"+
+		"KL\6\7\5\3LM\5\24\13\2MN\5\16\b\2NP\3\2\2\2OK\3\2\2\2PS\3\2\2\2QO\3\2"+
+		"\2\2QR\3\2\2\2R\r\3\2\2\2SQ\3\2\2\2TU\b\b\1\2UV\5\20\t\2V]\3\2\2\2WX\6"+
+		"\b\6\3XY\5\26\f\2YZ\5\20\t\2Z\\\3\2\2\2[W\3\2\2\2\\_\3\2\2\2][\3\2\2\2"+
+		"]^\3\2\2\2^\17\3\2\2\2_]\3\2\2\2`a\b\t\1\2ab\5\32\16\2bi\3\2\2\2cd\6\t"+
+		"\7\3de\5\30\r\2ef\5\32\16\2fh\3\2\2\2gc\3\2\2\2hk\3\2\2\2ig\3\2\2\2ij"+
+		"\3\2\2\2j\21\3\2\2\2ki\3\2\2\2lm\t\4\2\2m\23\3\2\2\2no\t\5\2\2o\25\3\2"+
+		"\2\2pq\t\6\2\2q\27\3\2\2\2rs\t\7\2\2s\31\3\2\2\2tu\7\21\2\2uv\5\6\4\2"+
+		"vw\7\22\2\2w~\3\2\2\2x~\7\r\2\2y~\7\f\2\2z~\7\n\2\2{~\7\13\2\2|~\7\6\2"+
+		"\2}t\3\2\2\2}x\3\2\2\2}y\3\2\2\2}z\3\2\2\2}{\3\2\2\2}|\3\2\2\2~\33\3\2"+
+		"\2\2\n\37.9EQ]i}";
 	public static final ATN _ATN =
 		ATNSimulator.deserialize(_serializedATN.toCharArray());
 	static {

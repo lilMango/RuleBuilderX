@@ -7,7 +7,7 @@ public class IntType extends NumericType{
     public boolean isInt(){return true;}
      
     public boolean isAssignable(Type t){ //float <=int, int is assignable TO Decimal
-        if((t instanceof IntType)|| (t instanceof DecimalType))
+        if((t instanceof IntType)|| (t instanceof FloatType))
             return true;
         return false;
              

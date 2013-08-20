@@ -1,7 +1,7 @@
 package com.intuit.cg.lang.simplexslt;
 
 
-class ErrorSTO extends STO
+public class ErrorSTO extends STO
 {
    //----------------------------------------------------------------
    //

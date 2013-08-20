@@ -517,7 +517,7 @@ public class MainUI extends JFrame {
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
         	String xsltString="";
         	try {
-				//simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
+				simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
 				xsltString=simpleXsltCompiler.translateToXslt(inputString);//TODO
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -526,9 +526,10 @@ public class MainUI extends JFrame {
 				xsltString=null;
 			}
         	System.out.println(xsltString);
+        	System.out.println("null=="+null);
         	//System.out.println(xsltString.length());
             System.out.println("IsNUll? "+(xsltString instanceof Object));//xsltString.equals("null"));
-            if(xsltString!=null || !"null".equals(xsltString)){//use this to test for valid querys
+            if( !"null".equals(xsltString) || xsltString!=null){//use this to test for valid querys
             	Component tempC=jTabbedPane1.getSelectedComponent();
                 TextEditor tempTE=mapTabTE.get(tempC);
                 
@@ -547,20 +548,18 @@ public class MainUI extends JFrame {
         }
     }//GEN-LAST:event_jTextField3ActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {
         // TODO add your handling code here:
         xsltBuilder.setAgency(jButton1.getText());
         System.out.println("entered on formname");
     }//GEN-LAST:event_jTextField2ActionPerformed
 
-    private void jSpinner1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jSpinner1StateChanged
-        // TODO add your handling code here:
+    private void jSpinner1StateChanged(javax.swing.event.ChangeEvent evt) {
         xsltBuilder.setAgency(jSpinner1.getValue()+"");
         System.out.println("change state on Spinner1");
     }//GEN-LAST:event_jSpinner1StateChanged
 
-    private void btnAndOrActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAndOrActionPerformed
-        // TODO add your handling code here:
+    private void btnAndOrActionPerformed(java.awt.event.ActionEvent evt) {
         isAnd=!isAnd;
         if(isAnd){
             btnAndOr.setText("AND");

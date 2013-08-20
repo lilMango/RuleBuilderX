@@ -4,7 +4,7 @@ package com.intuit.cg.lang.simplexslt;
  * STOs are objects produced after traversing the parse tree
  */
 
-abstract class STO
+public abstract class STO
 {
   //----------------------------------------------------------------
   //
@@ -69,10 +69,7 @@ abstract class STO
   public boolean  isError ()  { return false; }
   public boolean  isNullSTO (){return false;}
    
-  public boolean isGlobal(){return this.isGlobal;}
-  public boolean isStatic(){ return this.isStatic.intValue()!=0;}
-   
-   
+
    
   public void setErrorMsgType(Type t) {
        
@@ -109,15 +106,6 @@ abstract class STO
   private Type        m_type;
   private Type        m_ErrorMsgType;
   private Type        m_ErrorMsgType2;
-   
-  private boolean isGlobal=false;
-  private Double isStatic=new Double("0");
-  private String instructions="";
-  private String postInstructions="";
-  private String preInstructions="";
-
- 
-  private boolean isLocal=false; //set in DoVarDecl
    
    
   private String assignInstructions="";

@@ -43,7 +43,6 @@ expr4 :
 expr5 : 
 	expr5 mulOp atom
 	| atom
-//	| RESERVED_WORDS
 	;	
 	
 equality	:
@@ -67,8 +66,9 @@ mulOp	:
 atom:
 	T_LPAREN expr T_RPAREN 
 	| NUMBER 				
-	| ID 
-	| StringLiteral
+	| ID
+	| T_STRING_LITERAL
+	| T_CHAR_LITERAL
 	| RESERVED_WORDS
 	;
 
@@ -76,20 +76,26 @@ atom:
 tokens written earlier, won't be interpreted as a simple string but as the keyword
 */
 RESERVED_WORDS:
-	'true' | 'false' | 'var'
+	T_BOOLS | 'var'
+	;
+	
+T_BOOLS:
+	'true' | 'false'
 	;
 T_OR : 'or' | '||' ;
 T_AND: 'and' | '&&';
 	
-StringLiteral	:
+T_STRING_LITERAL	:
 	'"' (~('\\'|'"'))* '"'
-	|'\'' (~('\\'|'"'))* '\''
+	;
+T_CHAR_LITERAL:
+	'\'' (~('\\'|'"'))* '\''
 	
 	;
 	
 /*Naming conventions */
-ID : T_LSQUIGBRACE (NAMECHAR)(NAMECHAR | DIGIT)* T_RSQUIGBRACE ;// ([^'-']$) ,not ending with '-'
-
+ID : T_LSQUIGBRACE (NAMECHAR)(NAMECHAR | DIGIT)* T_RSQUIGBRACE 
+	;// ([^'-']$) ,not ending with '-'
 
 fragment NAMECHAR : 
 	  LETTER 
@@ -122,7 +128,7 @@ T_STAR : '*' ;
 T_SLASH : '/' ;
 
 T_EQ : '=' ;
-T_NEQ : '!=' ;
+T_NEQ : '!='  | 'ne';
 T_LTE : '<=' ;
 T_LT : '<' ;
 T_GTE : '>=' ;

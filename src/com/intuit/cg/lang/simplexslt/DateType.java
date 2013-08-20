@@ -1,11 +1,10 @@
 package com.intuit.cg.lang.simplexslt;
 
-public class DecimalType extends NumericType{
-
-    public DecimalType(String strName){
+public class DateType extends NumericType {
+    public DateType(String strName){
         super(strName);
     }   
-    public boolean isDecimal(){return true;}
+    public boolean isDate(){return true;}
      
      
     public boolean isAssignable(Type t){
@@ -14,12 +13,12 @@ public class DecimalType extends NumericType{
     }//end isAssignable
      
     public boolean isEquivalent(Type t){
-        if(t instanceof DecimalType)
+        if(t instanceof DateType)
             return true;
         return false;
          
     }//end isEquivalent
     public Type clone(){
-        return new DecimalType(getName());
+        return new DateType(getName());
     }
 }//end class FloatType

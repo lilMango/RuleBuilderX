@@ -33,6 +33,9 @@ import java.util.List;
 
 import org.antlr.v4.runtime.misc.TestRig;
 
+import com.intuit.cg.lang.simplexslt.ErrorSTO;
+import com.intuit.cg.lang.simplexslt.STO;
+
 public class SimpleXsltCompiler {
 
 	public static final String LEXER_START_RULE_NAME = "tokens";
@@ -290,8 +293,16 @@ public class SimpleXsltCompiler {
 		//Create subtree starting at rule 'mystart'
 		ParseTree tree = parser.mystart();
 		XsltEmitter xsltEmitter=new XsltEmitter();
-		ParseTreeWalker.DEFAULT.walk(xsltEmitter,tree);
+		/*ParseTreeWalker.DEFAULT.walk(xsltEmitter,tree);//**USES LISTENERS
 		return xsltEmitter.getXslt(tree);
+		*/
+		XsltVisitor v = new XsltVisitor();
+		STO fw=v.visit(tree);
+		System.out.println("===@translateToXslt "+fw.getName());
+		if(!(fw instanceof ErrorSTO))
+			return fw.getName();
+		else
+			return "";
 	}//end translateToXslt(String)
 	
 	/*
