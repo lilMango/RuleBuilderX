@@ -86,7 +86,7 @@ public class MainUI extends JFrame {
         try {
 			simpleXsltCompiler= new SimpleXsltCompiler(args);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
     }//end constructor()
@@ -128,20 +128,8 @@ public class MainUI extends JFrame {
                     isSavingFlag=false;
                 }
             } else if (e.getID() == KeyEvent.KEY_TYPED){
-                //System.out.println("MyDispatcherType");//TODO Also implement when you add through Query Bar
-                Component tempC = jTabbedPane1.getSelectedComponent();
-                int tempI = jTabbedPane1.getSelectedIndex();
-                TextEditor tempTE = mapTabTE.get(tempC);
-                
-                if(tempTE!=null){
-                    if(!tempTE.isSaved()){
-                        jTabbedPane1.setTitleAt(tempI, "*"+tempTE.getName());
-
-                    }//end !tempTE.isSaved()
-                    else{
-                        
-                    }
-                }//end tempTE!=null
+            	updateEditedFileTitle();
+      
             }
             return false;
         }//end dispatchKeyEvent()
@@ -161,6 +149,7 @@ public class MainUI extends JFrame {
     		  			"A Bizarre Syntax Production.");
       jTextPane1.setText("~Welcome to the Xslt Rul3 Generator~\nHappy Coding!=)");
       jTabbedPane1.addTab("Welcome", rScrollPane);  
+ /*
       jTabbedPane1.addKeyListener(new KeyAdapter(){
          public void keyPressed(KeyEvent evt){
              if(evt.isControlDown() && evt.getKeyCode() == KeyEvent.VK_S){
@@ -179,6 +168,7 @@ public class MainUI extends JFrame {
              }
          }
       });//end addKeyListener
+*/
       jTabbedPane1.addChangeListener(new ChangeListener(){
     	  public void stateChanged(ChangeEvent e){
     		  System.out.println("Changed tabs to tab:"+jTabbedPane1.getSelectedIndex());
@@ -209,7 +199,7 @@ public class MainUI extends JFrame {
                     //textArea.setText(fileRW.toString());
                     tE.setText(fileRW.toString());
                     jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount()-1);
-                    //TODO SHOW THE TAB TO FRONT!!
+                    
                 }//end if !isDir
             }//end valueChanged()
         });//end treeSelectionListener()
@@ -235,7 +225,7 @@ public class MainUI extends JFrame {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jTextField1 = new javax.swing.JTextField();
+        txtRuleName = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jSpinner1 = new javax.swing.JSpinner();
@@ -244,7 +234,7 @@ public class MainUI extends JFrame {
         jLabel3 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        txtQueryBar = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         btnAndOr = new javax.swing.JToggleButton();
         jLabel5 = new javax.swing.JLabel();
@@ -292,9 +282,9 @@ public class MainUI extends JFrame {
         
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtRuleName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtRuleNameActionPerformed(evt);
             }
         });
 
@@ -320,7 +310,7 @@ public class MainUI extends JFrame {
 
         jLabel4.setText("Conditions:");
 
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
+        txtQueryBar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField3ActionPerformed(evt);
             }
@@ -425,7 +415,7 @@ public class MainUI extends JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel4)
                                 .addGap(0, 0, Short.MAX_VALUE)))
@@ -438,7 +428,7 @@ public class MainUI extends JFrame {
                                     .addComponent(jLabel2)
                                     .addComponent(jLabel3)
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                        .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtRuleName, javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING))
                                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                         .addComponent(jSpinner1, javax.swing.GroupLayout.Alignment.LEADING)
@@ -458,7 +448,7 @@ public class MainUI extends JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -477,7 +467,7 @@ public class MainUI extends JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(1, 1, 1)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addComponent(btnAndOr)
                                     .addComponent(btnAndOr1))
                                 .addGap(0, 0, 0)
@@ -496,9 +486,27 @@ public class MainUI extends JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
-        xsltBuilder.setRulename(jTextField1.getText());
+    private void txtRuleNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRuleNameActionPerformed
+        xsltBuilder.setRulename(txtRuleName.getText());
         System.out.println("entered on Rulename");
+        
+        String inputString = txtRuleName.getText();
+        
+        if (!"".equals(inputString)){ //also test if this is a valid query using parser
+    
+        	Component tempC=jTabbedPane1.getSelectedComponent();
+            TextEditor tempTE=mapTabTE.get(tempC);
+            
+            
+            if(tempTE!=null){
+            	tempTE.updateRuleProps(inputString);
+            	tempTE.setIsSaved(false);
+            }//end tempTE!=null
+          
+            updateEditedFileTitle();
+            
+            txtRuleName.setText("");
+        }//end if string notEmpty
     }//GEN-LAST:event_jTextField1ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//event_jButton1ActionPerformed
@@ -512,44 +520,45 @@ public class MainUI extends JFrame {
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
 //activated by pressing enter by default
          System.out.println("hi there you pressed enter in the query field");
-        String inputString = jTextField3.getText();
+        String inputString = txtQueryBar.getText();
         
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
         	String xsltString="";
         	try {
-				simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
-				xsltString=simpleXsltCompiler.translateToXslt(inputString);//TODO
+				//simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
+				xsltString=simpleXsltCompiler.translateToXslt(inputString);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("There was an error=======");
-				xsltString=null;
+				xsltString="";
 			}
-        	System.out.println(xsltString);
-        	System.out.println("null=="+null);
+        	//System.out.println(xsltString);
+        	//System.out.println("null=="+null);
         	//System.out.println(xsltString.length());
-            System.out.println("IsNUll? "+(xsltString instanceof Object));//xsltString.equals("null"));
-            if( !"null".equals(xsltString) || xsltString!=null){//use this to test for valid querys
+            //System.out.println("IsNUll? "+(xsltString instanceof Object));//xsltString.equals("null"));
+            if( !"null".equals(xsltString) && xsltString!=null && !"".equals(xsltString)){//use this to test for valid querys
             	Component tempC=jTabbedPane1.getSelectedComponent();
                 TextEditor tempTE=mapTabTE.get(tempC);
                 
-                xsltBuilder.addQuery(isAnd,xsltString);
-                jTextPane1.setText(xsltBuilder.getXSLT());
-                textArea.setText(xsltBuilder.getXSLT());
+                //xsltBuilder.addQuery(isAnd,xsltString);
+                //jTextPane1.setText(xsltBuilder.getXSLT());
+                //textArea.setText(xsltBuilder.getXSLT());
                 
                 if(tempTE!=null){
                 	tempTE.appendRule(isAnd,xsltString);
+                	tempTE.setIsSaved(false);
                 }//end tempTE!=null
             	//jTextPane1.setText(xsltString);
                 
+                updateEditedFileTitle();
                 
             }
-            jTextField3.setText("");
+            txtQueryBar.setText("");
         }
     }//GEN-LAST:event_jTextField3ActionPerformed
 
     private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {
-        // TODO add your handling code here:
+        
         xsltBuilder.setAgency(jButton1.getText());
         System.out.println("entered on formname");
     }//GEN-LAST:event_jTextField2ActionPerformed
@@ -570,13 +579,32 @@ public class MainUI extends JFrame {
     }//GEN-LAST:event_btnAndOrActionPerformed
 
     private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
-        // TODO add your handling code here:
+        // 
     }//GEN-LAST:event_jTextField4ActionPerformed
 
     private void btnAndOr1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAndOr1ActionPerformed
-        // TODO add your handling code here:
+        // 
     }//GEN-LAST:event_btnAndOr1ActionPerformed
 
+    /*
+     * Used to mark with '*' when a document is not saved/edited in the title of file
+     */
+    private void updateEditedFileTitle(){
+    	System.out.println("zomh");
+        Component tempC = jTabbedPane1.getSelectedComponent();
+        int tempI = jTabbedPane1.getSelectedIndex();
+        TextEditor tempTE = mapTabTE.get(tempC);
+        
+        if(tempTE!=null){
+            if(!tempTE.isSaved()){
+                jTabbedPane1.setTitleAt(tempI, "*"+tempTE.getName());
+
+            }//end !tempTE.isSaved()
+            else{
+                
+            }
+        }//end tempTE!=null
+    }//end updateChangedText()
     /**
      * @param args the command line arguments
      */
@@ -633,9 +661,9 @@ public class MainUI extends JFrame {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSpinner jSpinner1;
     private ClosableTabbedPane jTabbedPane1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField txtRuleName;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField txtQueryBar;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree jTree2;

@@ -11,9 +11,9 @@ package com.intuit.cg.tools.rules.utils;
 public class RuleTemplate {
     
     private static final String ERRORS_XSLT="\t<Error>\n"+
-                                                "\t   <xsl:attribute name=\"errorCode\">$ruleName</xsl:attribute>\n"+
+                                                "\t   <xsl:attribute name=\"errorCode\">$ruleName </xsl:attribute>\n"+
                                                 "\t   <xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
-                                                "\t   <xsl:attribute name=\"RejectingAgency\">$agency</xsl:attribute>\n"+
+                                                "\t   <xsl:attribute name=\"RejectingAgency\">$agency </xsl:attribute>\n"+
                                              "\t</Error>\n";
     
     //parse using $

@@ -26,6 +26,9 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -42,12 +45,13 @@ public class TextEditor {
 	static final String BEGIN_RULE="<xsl:if test=";//"<!-- Begin";
 	static final String END_RULE="</xsl:if>";//"<!-- End"; 
 	static final String END_COMMENT="</xsl:if>";//"-->";
+	static final String BEGIN_COMMENT_RULE="<!-- Begin ";
+	static final String END_COMMENT_RULE="<!-- End ";
 
     File file;
     private RSyntaxTextArea textArea;
     private RTextScrollPane rScrollPane;
-    private static Icon savedIcon;
-    private static Icon unsavedIcon;
+
     public boolean isSaved;
     
     public TextEditor(File file){
@@ -98,6 +102,158 @@ public class TextEditor {
     }//end setText(String)
    
     /*
+     * updateRuleProps(String)
+     * Update the closest rule to change the file name and or agency name
+     */
+    public void updateRuleProps(String argStr){
+    	int prevCaretPos=this.textArea.getCaretPosition();
+    	
+    	int currLine=-1;
+    	String lines[]=this.textArea.getText().split("\n");
+    	
+    	try {
+			currLine=this.textArea.getLineOfOffset(this.textArea.getCaretPosition());
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			currLine=-1;
+			return;
+		}//end try-catch
+    	
+    	int beginTag=findBeginTag(lines,currLine);
+    	int endTag=findEndTag(lines,currLine+1);
+    	StringBuffer resultText=new StringBuffer();	
+
+    	//test to see if cursor is within a rule already, if so try and append to its list of conditions
+    	if(beginTag!=-1 && endTag!=-1){
+    		//beginTag--;endTag++;
+    		System.out.println("INSIDE a rule!");
+    		//convert to string
+    		lines[beginTag-1]="<!-- Begin "+argStr+"-->";
+    		lines[endTag+1]="<!-- End "+argStr+"-->";
+    		StringBuffer tempRule=new StringBuffer();
+    		for(int i=beginTag;i<=endTag;i++){
+    			/*
+    			if(i==beginTag){
+    				System.out.println("Need to trim Beginning!");
+    				//int idx=lines[i].indexOf(BEGIN_COMMENT_RULE);
+					//tempRule.append(lines[i].substring(idx)+"\n");
+    				lines[i]="<!-- Begin "+argStr+"-->";
+    				System.out.println(lines[i]);
+    				tempRule.append(lines[i]+"\n");
+        			
+    			}else if(i==endTag){//trimming the end line so End tag will only be parsed
+    				//int idx2=lines[i].lastIndexOf(END_COMMENT);
+    				//tempRule.append(lines[i].substring(0,idx2+END_COMMENT.length()));
+    				lines[i]="<!-- End "+argStr+"-->";
+    				tempRule.append(lines[i]+"\n");
+    				System.out.println("Needs to trim END!");
+    			}else{
+    				tempRule.append(lines[i]+"\n");
+    			}
+    			*/
+    			tempRule.append(lines[i]+"\n");
+			}//end for i
+
+    		System.out.println("\t updateRUle\n"+tempRule.toString());
+    		
+    		
+    		//string -> XML dom
+    		DocumentBuilder db;
+    		Document doc=null;
+			try {
+				db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+           		InputSource is = new InputSource();
+        		is.setCharacterStream(new StringReader(tempRule.toString()));
+        		try {
+					doc = db.parse(is);
+				} catch (SAXException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+        		
+			} catch (ParserConfigurationException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}//end try-catch
+
+    		//add new condition to test attribute
+			//TODO Consider using Apache XmlBeans and XmlCursor
+			if(doc!=null){
+				doc.getDocumentElement().normalize();
+				
+
+				Node xslTag= doc.getFirstChild();
+				//System.out.println("xsl : "+xslTag.getNodeName());
+				Node errorTag = xslTag.getChildNodes().item(1);
+				Node xAttr1Tag = errorTag.getChildNodes().item(1);
+				Node errCode=xAttr1Tag.getFirstChild();
+				
+				if(errCode!=null){
+					errCode.setNodeValue(argStr);
+		
+				}else{
+					xAttr1Tag.setTextContent(argStr);
+				}
+				//TODO add argStr to errorCode!!
+
+			}else{
+				return;
+			}			
+
+			//Update rule: XML dom -> string
+			String updatedRule="";
+			TransformerFactory tf = TransformerFactory.newInstance();
+			Transformer transformer;
+			try {
+				transformer = tf.newTransformer();
+				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+				StringWriter writer = new StringWriter();
+				
+				try {
+					transformer.transform(new DOMSource(doc), new StreamResult(writer));
+					updatedRule= writer.getBuffer().toString();
+					
+				} catch (TransformerException e) {
+	
+					e.printStackTrace();
+				}
+			} catch (TransformerConfigurationException e) {
+				e.printStackTrace();
+			}
+			System.out.println("UpdatedRule: "+updatedRule);
+			System.out.println("After: "+doc.getDocumentElement().getAttribute("errorCode"));
+			//=====================================================================/
+
+			//Store previous stuff to a buffer
+    		for(int i=0;i<beginTag;i++){
+    			resultText.append(lines[i]+"\n");
+    		}//end for i
+    		
+    		//add new content
+    		//resultText.append(lines[beginTag]);
+    		resultText.append("   "+updatedRule+"\n");
+    		//resultText
+    		//resultText.append(tempRule);
+    		
+    		//store latter stuff to buffer
+    		for(int i=endTag+1;i<lines.length;i++){
+    			resultText.append(lines[i]+"\n");
+    		}//end for i
+    		
+    		//print out buffer to textArea
+    		this.textArea.setText(resultText.toString());
+    		this.textArea.setCaretPosition(prevCaretPos);
+    	}else{ //in a completely new area
+    		int curPos=this.textArea.getCaretPosition();
+        	System.out.println("OUT!");
+    		this.textArea.insert(new XsltBuilder(argStr).getXSLT(), curPos);         		
+    	}//end if beginTag!=-1 && endTag!=-1
+    }//end updateRuleProps(String)
+
+    
+    /*
      *  appendRule(String)
      *  Will find the closest rule to append the new test condition to
      *  args0:and/or condition
@@ -118,6 +274,7 @@ public class TextEditor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			currLine=-1;
+			return;
 		}//end try-catch
     	int beginTag=findBeginTag(lines,currLine);
     	int endTag=findEndTag(lines,currLine+1);
@@ -210,7 +367,7 @@ public class TextEditor {
     		}//end for i
     		
     		//add new content
-    		resultText.append(updatedRule+"\n");
+    		resultText.append("   "+updatedRule+"\n");
     		
     		//store latter stuff to buffer
     		for(int i=endTag+1;i<lines.length;i++){
