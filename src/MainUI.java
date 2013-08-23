@@ -10,6 +10,8 @@ import com.intuit.cg.tools.rules.utils.XsltBuilder;
 
 import java.awt.Component;
 
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -17,6 +19,11 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.TreeModel;
+
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,10 +39,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -188,7 +191,7 @@ public class MainUI extends JFrame {
         jTreeFileSystem.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent event) {
                 File file = (File) jTreeFileSystem.getLastSelectedPathComponent();
-                jTextPane1.setText(getFileDetails(file));
+                jTextPane1.setText(getFileDetails(file)+"@initFileTreeViewer()");
                 if(!file.isDirectory()){//TODO Fix so it doesn't open on any normal file
                     TextEditor tE=new TextEditor(file);
                     arrTextEditors.add(tE);
@@ -272,7 +275,49 @@ public class MainUI extends JFrame {
         jTextPane1 = new javax.swing.JTextPane();
         jScrollPane3 = new javax.swing.JScrollPane();
         jTree2 = new javax.swing.JTree();
-        spinnerWorkspace = new javax.swing.JSpinner();
+        comboBoxWorkspace = new JComboBox();
+        comboBoxWorkspace.setModel(new DefaultComboBoxModel(new String[] { "C:\\", "C:\\0_TestDir","C:\\ty13", "C:\\Users","Switch To Workspace...", "New Workspace..." }));
+        comboBoxWorkspace.addActionListener(new java.awt.event.ActionListener() {//TODO so it breaks down if you focus on a file then try to change combo box selection. currently if one option breaks no other selection will work
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            	JComboBox cb=(JComboBox)evt.getSource();
+            	String selection=cb.getSelectedItem()+"";
+                System.out.println("Selected a workspace: "+selection);
+                if(!"Switch To Workspace...".equals(selection) && !"New Workspace...".equals(selection)){
+                	File file=new File(selection);
+                	
+                    fileSystemModel = new FileSystemModel(file);
+                    
+                    jTreeFileSystem.setModel(fileSystemModel);
+                    /* Don't want to add another listener, cuz it will duplicate all of these events
+                    jTreeFileSystem.addTreeSelectionListener(new TreeSelectionListener() {
+                        public void valueChanged(TreeSelectionEvent event) {
+                            File file = (File) jTreeFileSystem.getLastSelectedPathComponent();
+                            if(file==null){
+                            	System.out.println("NULL FILE");
+                            	return;
+                            }
+                            jTextPane1.setText(getFileDetails(file)+"EE");
+                            if(!file.isDirectory()){//TODO Fix so it doesn't open on any normal file
+                                TextEditor tE=new TextEditor(file);
+                                arrTextEditors.add(tE);
+                                jTabbedPane1.add(file.getName(),tE.getRTextScrollPane());
+                                mapTabTE.put(tE.getRTextScrollPane(), tE);
+                                
+                                FileReaderWriter fileRW= new FileReaderWriter(file);
+                                tE.setText(fileRW.toString());
+                                jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount()-1);	                                	
+                                
+                                //textArea.setText(fileRW.toString());
+
+                                
+                            }//end if !isDir
+                        }//end valueChanged()
+                    });//end treeSelectionListener()
+                    */
+                }//end if !Switch && !NewWorkspace
+            }
+        });//end comboBoxWorkspace.addActionListener()
+        
         btnAndOr1 = new javax.swing.JToggleButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -285,8 +330,14 @@ public class MainUI extends JFrame {
         txtRuleName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtRuleNameActionPerformed(evt);
+                
             }
         });
+        txtRuleName.addKeyListener(new KeyAdapter(){
+           public void keyTyped(KeyEvent evt){
+        	  //updateRuleName(false);
+            }
+         });//end addKeyListener
 
         jLabel1.setText("Rule Name:");
 
@@ -402,7 +453,7 @@ public class MainUI extends JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
                     .addComponent(jScrollPane3)
-                    .addComponent(spinnerWorkspace))
+                    .addComponent(comboBoxWorkspace))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -460,7 +511,7 @@ public class MainUI extends JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(3, 3, 3)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(spinnerWorkspace, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(comboBoxWorkspace, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4))
                         .addGap(11, 11, 11)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -487,6 +538,14 @@ public class MainUI extends JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtRuleNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRuleNameActionPerformed
+    	updateRuleName(true);
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
+    /*
+     * Changes rule name from txt Rule Name
+     */
+    private void updateRuleName(boolean reset){
+    	
         xsltBuilder.setRulename(txtRuleName.getText());
         System.out.println("entered on Rulename");
         
@@ -504,11 +563,11 @@ public class MainUI extends JFrame {
             }//end tempTE!=null
           
             updateEditedFileTitle();
-            
-            txtRuleName.setText("");
+            if(reset)
+            	txtRuleName.setText("");
         }//end if string notEmpty
-    }//GEN-LAST:event_jTextField1ActionPerformed
-
+    }//end updateRuleName()
+    
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//event_jButton1ActionPerformed
      
         
@@ -668,6 +727,6 @@ public class MainUI extends JFrame {
     private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTree jTree2;
     private javax.swing.JTree jTreeFileSystem;
-    private javax.swing.JSpinner spinnerWorkspace;
+    private JComboBox comboBoxWorkspace;
     // End of variables declaration//GEN-END:variables
 }

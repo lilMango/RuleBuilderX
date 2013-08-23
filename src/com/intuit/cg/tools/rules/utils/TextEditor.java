@@ -126,36 +126,14 @@ public class TextEditor {
 
     	//test to see if cursor is within a rule already, if so try and append to its list of conditions
     	if(beginTag!=-1 && endTag!=-1){
-    		//beginTag--;endTag++;
-    		System.out.println("INSIDE a rule!");
+
     		//convert to string
     		lines[beginTag-1]="<!-- Begin "+argStr+"-->";
     		lines[endTag+1]="<!-- End "+argStr+"-->";
     		StringBuffer tempRule=new StringBuffer();
     		for(int i=beginTag;i<=endTag;i++){
-    			/*
-    			if(i==beginTag){
-    				System.out.println("Need to trim Beginning!");
-    				//int idx=lines[i].indexOf(BEGIN_COMMENT_RULE);
-					//tempRule.append(lines[i].substring(idx)+"\n");
-    				lines[i]="<!-- Begin "+argStr+"-->";
-    				System.out.println(lines[i]);
-    				tempRule.append(lines[i]+"\n");
-        			
-    			}else if(i==endTag){//trimming the end line so End tag will only be parsed
-    				//int idx2=lines[i].lastIndexOf(END_COMMENT);
-    				//tempRule.append(lines[i].substring(0,idx2+END_COMMENT.length()));
-    				lines[i]="<!-- End "+argStr+"-->";
-    				tempRule.append(lines[i]+"\n");
-    				System.out.println("Needs to trim END!");
-    			}else{
-    				tempRule.append(lines[i]+"\n");
-    			}
-    			*/
     			tempRule.append(lines[i]+"\n");
 			}//end for i
-
-    		System.out.println("\t updateRUle\n"+tempRule.toString());
     		
     		
     		//string -> XML dom
@@ -222,9 +200,7 @@ public class TextEditor {
 			} catch (TransformerConfigurationException e) {
 				e.printStackTrace();
 			}
-			System.out.println("UpdatedRule: "+updatedRule);
-			System.out.println("After: "+doc.getDocumentElement().getAttribute("errorCode"));
-			//=====================================================================/
+				//=====================================================================/
 
 			//Store previous stuff to a buffer
     		for(int i=0;i<beginTag;i++){
@@ -247,8 +223,9 @@ public class TextEditor {
     		this.textArea.setCaretPosition(prevCaretPos);
     	}else{ //in a completely new area
     		int curPos=this.textArea.getCaretPosition();
-        	System.out.println("OUT!");
-    		this.textArea.insert(new XsltBuilder(argStr).getXSLT(), curPos);         		
+    		XsltBuilder xbTemp=new XsltBuilder("");
+    		xbTemp.setRulename(argStr);
+    		this.textArea.insert(xbTemp.getXSLT(), curPos);         		
     	}//end if beginTag!=-1 && endTag!=-1
     }//end updateRuleProps(String)
 
