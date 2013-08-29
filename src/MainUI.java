@@ -194,9 +194,13 @@ public class MainUI extends JFrame {
      *  Will eventually add to model the XSLT/XML structure of the file
      */
     private void initFileTreeViewer(){
-
-        fileSystemModel = new FileSystemModel(new File("C:\\"));
-        
+    	
+    	Vector<Workspace> workspaces=configFiler.getWorkspaces();
+    	if(workspaces.size()>2){
+    		fileSystemModel =  new FileSystemModel(new File(workspaces.get(0).getDir()));
+    	}else{
+    		//fileSystemModel = new FileSystemModel(new File("C:\\"));
+    	}
         jTreeFileSystem.setModel(fileSystemModel);
         jTreeFileSystem.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent event) {

@@ -1,5 +1,6 @@
 package com.intuit.cg.tools.filesystem;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -22,7 +23,7 @@ import org.json.simple.parser.ParseException;
  * This class loads data from a config file (*.json)
  */
 public class ConfigFiler {
-	private static String CONFIG_FILE=System.getProperty("user.dir").toString();//"C:\\0_TestDir\\test.json";
+	private static String CONFIG_FILE=System.getProperty("user.dir").toString()+File.separator+"config_rule_builder.txt";
 	private Vector<Workspace> workspaces=new Vector<Workspace>();
 	private Workspace newWorkspace=new Workspace("New Workspace...",null);
 	private Workspace selectWorkspace =  new Workspace("Select Workspace...",null);
@@ -59,6 +60,7 @@ public class ConfigFiler {
 	
 		try{
 			FileWriter file = new FileWriter(CONFIG_FILE);
+			System.out.println("EFE: "+CONFIG_FILE);
 			file.write(obj.toJSONString());
 			file.flush();
 			file.close();
