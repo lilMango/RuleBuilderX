@@ -1,4 +1,4 @@
-package org.swing.components;
+package org.swing.custom.components;
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.

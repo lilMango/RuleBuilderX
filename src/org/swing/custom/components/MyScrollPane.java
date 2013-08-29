@@ -1,4 +1,4 @@
-package org.swing.components;
+package org.swing.custom.components;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;

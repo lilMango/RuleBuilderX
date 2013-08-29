@@ -233,11 +233,12 @@ public class TextEditor {
     /*
      *  appendRule(String)
      *  Will find the closest rule to append the new test condition to
+     *  if not, it will create a new rule from a template.
      *  args0:and/or condition
      *  args1:the new XSLT condition string to add
      *	returns void
      */
-    public void appendRule(boolean isAnd,String argStr){
+    public void appendRule(boolean isAnd,String argStr,String ruleName, String agency,String formName){
     	
     	String conjunction=isAnd?"and":"or";
     	int prevCaretPos=this.textArea.getCaretPosition();
@@ -305,9 +306,11 @@ public class TextEditor {
 				doc.getDocumentElement().normalize();
 				
 				String before=doc.getDocumentElement().getAttribute("test");
-				
-				doc.getDocumentElement().setAttribute("test",before+" "+conjunction + " " + argStr );
-
+				if("".equals(before)){
+					doc.getDocumentElement().setAttribute("test",argStr);
+				}else{
+					doc.getDocumentElement().setAttribute("test",before+" "+conjunction + " " + argStr );
+				}
 
 			}else{
 				return;
@@ -357,7 +360,11 @@ public class TextEditor {
     	}else{ //in a completely new area
     		int curPos=this.textArea.getCaretPosition();
         	System.out.println("OUT!");
-    		this.textArea.insert(new XsltBuilder(argStr).getXSLT(), curPos);         		
+        	XsltBuilder xb= new XsltBuilder(argStr);
+        	xb.setAgency(agency);
+        	xb.setRulename(ruleName);
+        	xb.setFormname(formName);
+    		this.textArea.insert(xb.getXSLT(), curPos);         		
     	}//end if beginTag!=-1 && endTag!=-1
     	    	
     }//appendRule(String)

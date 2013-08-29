@@ -16,6 +16,7 @@ public class XsltBuilder {
     private RuleTemplate template;
     private String ruleName="";
     private String agency="";
+    private String formName="";
     public XsltBuilder(String ruleName,String agency){
         template=new RuleTemplate();
         this.ruleName=ruleName;
@@ -51,12 +52,19 @@ public class XsltBuilder {
     public String getAgency(){
         return this.agency;
     }//end getAgency()
+
+    public void setFormname(String formName){
+    	this.formName=formName;
+    }//end setFormname(String)
     
+    public String getFormname(){
+    	return this.formName;
+    }//end getFormname()
     public String getXSLT(){
         String result = template.getTemplate();
         
         result = result.replace("$ruleName", ruleName);
-        
+        result = result.replace("$agency", agency);
         StringBuffer queries = new StringBuffer();
         
         boolean flag=false;

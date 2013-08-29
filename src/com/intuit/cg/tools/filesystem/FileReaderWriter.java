@@ -2,7 +2,7 @@
  * FileReaderWriter will be assigned to each file/tab
  * 
  */
-package com.intuit.cg.tools.FileSystemViewer;
+package com.intuit.cg.tools.filesystem;
 
 
 import java.io.BufferedReader;

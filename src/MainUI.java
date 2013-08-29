@@ -4,7 +4,7 @@
  */
 
 import com.intuit.cg.lang.simplexslt.*;
-import com.intuit.cg.tools.FileSystemViewer.*;
+import com.intuit.cg.tools.filesystem.*;
 import com.intuit.cg.tools.rules.utils.TextEditor;
 import com.intuit.cg.tools.rules.utils.XsltBuilder;
 
@@ -14,6 +14,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -27,6 +29,8 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.SpinnerListModel;
+import javax.swing.SpinnerModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.TreeModel;
 
@@ -48,6 +52,8 @@ import java.awt.ScrollPane;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Vector;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -56,7 +62,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
-import org.swing.components.ClosableTabbedPane;
+import org.swing.custom.components.ClosableTabbedPane;
+import org.swing.custom.components.WorkspacePanel;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -82,12 +89,21 @@ public class MainUI extends JFrame {
     private HashMap<Component,TextEditor> mapTabTE;
     
     private SimpleXsltCompiler simpleXsltCompiler;
+    private ConfigFiler configFiler= new ConfigFiler();
+    
+    String[] agencyArr={"AK","AL","AR","AS","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID",
+			"IL","IN","KS","KY","LA","MA","MD","ME","MH","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY",
+			"OH","OK","OR","PA","PR","PW","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY"};
     /**
      * Creates new form NewJFrame
      */
     public MainUI() {
         keyManager.addKeyEventDispatcher(new MyDispatcher()); // so ctrl-s is application wide
-   
+      
+       //TODO FIX WHY its printing twice
+        //configFiler.writeConfig();
+        configFiler.readConfig();
+
         initComponents();
         initFileTreeViewer();
         //initCodeTextArea();//jTabbedPane1's post-creation code
@@ -150,6 +166,10 @@ public class MainUI extends JFrame {
     }//end class MyDispatcher
     
     /*
+     * sets up the state agency spinner
+     */	
+
+    /*
      *  Used to initialize the Syntax highlighted Code text area
      */
     private void initCodeTextArea(){
@@ -161,28 +181,7 @@ public class MainUI extends JFrame {
       textArea.setText("Welcome to the XSLT Rule Builder!\n\n"+
     		  			"A Bizarre Syntax Production.");
       jTabbedPane1.addTab("Welcome", rScrollPane);  
- /*
-   		jTextPane1.setText("~Welcome to the Xslt Rul3 Generator~\nHappy Coding!=)");
-      
-      jTabbedPane1.addKeyListener(new KeyAdapter(){
-         public void keyPressed(KeyEvent evt){
-             if(evt.isControlDown() && evt.getKeyCode() == KeyEvent.VK_S){
-                 System.out.println("Saved called while TAB is focused (not text)!");
-            }
-         
-         }//end keyPressed(KeyEvent)
-         
-         public void keyReleased(KeyEvent evt){}
-         public void keyTyped(KeyEvent evt){
-             System.out.println("typed event");
-             TextEditor temp=mapTabTE.get(jTabbedPane1.getSelectedComponent());
-             if(temp!=null){
-                 temp.setIsSaved(false);
-                 mapTabTE.put(jTabbedPane1.getSelectedComponent(), temp);
-             }
-         }
-      });//end addKeyListener
-*/
+
       jTabbedPane1.addChangeListener(new ChangeListener(){
     	  public void stateChanged(ChangeEvent e){
     		  System.out.println("Changed tabs to tab:"+jTabbedPane1.getSelectedIndex());
@@ -202,8 +201,8 @@ public class MainUI extends JFrame {
         jTreeFileSystem.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent event) {
                 File file = (File) jTreeFileSystem.getLastSelectedPathComponent();
-                //jTextPane1.setText(getFileDetails(file)+"@initFileTreeViewer()");
-                if(!file.isDirectory()){//TODO Fix so it doesn't open on any normal file
+                
+                if(file!=null&&!file.isDirectory()){//TODO Fix so it doesn't open on any normal file
                     TextEditor tE=new TextEditor(file);
                     arrTextEditors.add(tE);
                     jTabbedPane1.add(file.getName(),tE.getRTextScrollPane());
@@ -219,6 +218,55 @@ public class MainUI extends JFrame {
         });//end treeSelectionListener()
     }//end initFileTreeViewer()
 
+    private void initWorkspace(){
+    	
+        comboBoxWorkspace.setModel(new DefaultComboBoxModel(configFiler.getWorkspaces()));
+	    comboBoxWorkspace.addActionListener(new java.awt.event.ActionListener() {
+	         public void actionPerformed(java.awt.event.ActionEvent evt) {
+	         	JComboBox cb=(JComboBox)evt.getSource();
+	         	String wkName=cb.getSelectedItem()+"";
+	         	String rootDir=((Workspace) cb.getSelectedItem()).getDir()+"";
+	             System.out.println("Selected a workspace: "+wkName+"=>"+rootDir);
+	             
+	             if("New Workspace...".equals(wkName)){
+	            	 
+	            	 	WorkspacePanel workspacePanel=new WorkspacePanel();
+	            	 	 
+	            	 	int result = JOptionPane.showConfirmDialog(null, workspacePanel,
+	            	 		    "Create a Workspace", JOptionPane.OK_CANCEL_OPTION,
+	            	 		    JOptionPane.PLAIN_MESSAGE);
+	            	 
+	            	 	if (result == JOptionPane.OK_OPTION) {
+	                        /*
+	            	 		for (WorkspacePanel.FieldTitle fieldTitle : WorkspacePanel.FieldTitle
+	                              .values()) {
+	                           System.out.println("\t"+fieldTitle+":  "+workspacePanel.getFieldText(fieldTitle));
+	                           
+	                        }
+	                        */
+	                        WorkspacePanel.FieldTitle name = WorkspacePanel.FieldTitle.NAME;
+	                        WorkspacePanel.FieldTitle dir = WorkspacePanel.FieldTitle.ROOTDIR;
+	                        //System.out.println("FE: "+workspacePanel.getFieldText(name)+"  "+workspacePanel.getFieldText(dir));
+	                        configFiler.addWorkspace(workspacePanel.getFieldText(name),workspacePanel.getFieldText(dir));
+	                        configFiler.writeConfig();
+	                        comboBoxWorkspace.setModel(new DefaultComboBoxModel(configFiler.getWorkspaces()));
+	                     }
+	            	    
+	            	    
+	             }else if("Select Workspace...".equals(wkName)){
+	            	 	//TODO Create a menu for editing and deleting workspace
+	             }else{
+	            	 File file=new File(rootDir);
+	             	
+	                 fileSystemModel = new FileSystemModel(file);
+	                 
+	                 jTreeFileSystem.setModel(fileSystemModel);
+	            
+	             }
+	         }
+	     });
+	    
+    }//end initWorkspace()
     private String getFileDetails(File file) {
         if (file == null)
             return "";
@@ -234,8 +282,7 @@ public class MainUI extends JFrame {
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
-    @SuppressWarnings("unchecked")
-
+   
     private void initComponents() {
 
     	splitPaneLeftRight = new JSplitPane();
@@ -255,7 +302,7 @@ public class MainUI extends JFrame {
         lblAgency = new javax.swing.JLabel();
         spinnerAgency = new javax.swing.JSpinner();
         lblForm = new javax.swing.JLabel();
-        txtForm = new javax.swing.JTextField();
+        txtFormName = new javax.swing.JTextField();
         lblConditions = new javax.swing.JLabel();
         txtQueryBar = new javax.swing.JTextField();
         btnTest = new javax.swing.JButton();
@@ -310,49 +357,10 @@ public class MainUI extends JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+
+        spinnerAgency.setModel(new SpinnerListModel(agencyArr));
         
-        comboBoxWorkspace.setModel(new DefaultComboBoxModel(new String[] { "C:\\", "C:\\0_TestDir","C:\\ty13", "C:\\Users","Switch To Workspace...", "New Workspace..." }));
-	     comboBoxWorkspace.addActionListener(new java.awt.event.ActionListener() {//TODO so it breaks down if you focus on a file then try to change combo box selection. currently if one option breaks no other selection will work
-	         public void actionPerformed(java.awt.event.ActionEvent evt) {
-	         	JComboBox cb=(JComboBox)evt.getSource();
-	         	String selection=cb.getSelectedItem()+"";
-	             System.out.println("Selected a workspace: "+selection);
-	             if(!"Switch To Workspace...".equals(selection) && !"New Workspace...".equals(selection)){
-	             	File file=new File(selection);
-	             	
-	                 fileSystemModel = new FileSystemModel(file);
-	                 
-	                 jTreeFileSystem.setModel(fileSystemModel);
-	                 /* Don't want to add another listener, cuz it will duplicate all of these events
-	                 jTreeFileSystem.addTreeSelectionListener(new TreeSelectionListener() {
-	                     public void valueChanged(TreeSelectionEvent event) {
-	                         File file = (File) jTreeFileSystem.getLastSelectedPathComponent();
-	                         if(file==null){
-	                         	System.out.println("NULL FILE");
-	                         	return;
-	                         }
-	                         jTextPane1.setText(getFileDetails(file)+"EE");
-	                         if(!file.isDirectory()){//TODO Fix so it doesn't open on any normal file
-	                             TextEditor tE=new TextEditor(file);
-	                             arrTextEditors.add(tE);
-	                             jTabbedPane1.add(file.getName(),tE.getRTextScrollPane());
-	                             mapTabTE.put(tE.getRTextScrollPane(), tE);
-	                             
-	                             FileReaderWriter fileRW= new FileReaderWriter(file);
-	                             tE.setText(fileRW.toString());
-	                             jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount()-1);	                                	
-	                             
-	                             //textArea.setText(fileRW.toString());
-	
-	                             
-	                         }//end if !isDir
-	                     }//end valueChanged()
-	                 });//end treeSelectionListener()
-	                 */
-	             }//end if !Switch && !NewWorkspace
-	         }
-	     });//end comboBoxWorkspace.addActionListener()
-	     
+        initWorkspace();
 	     
 	     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
 	        jPanel1.setLayout(jPanel1Layout);
@@ -455,7 +463,7 @@ public class MainUI extends JFrame {
         );
 
         splitPaneRight.setRightComponent(paneRight);
-
+        splitPaneRight.setResizeWeight(1.0);
         splitPaneEditor.setDividerSize(7);
         splitPaneEditor.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitPaneEditor.setOneTouchExpandable(true);
@@ -479,7 +487,7 @@ public class MainUI extends JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(lblForm)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtForm, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnTest))
                     .addGroup(paneQueryBarLayout.createSequentialGroup()
@@ -504,7 +512,7 @@ public class MainUI extends JFrame {
                     .addComponent(lblAgency)
                     .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblForm)
-                    .addComponent(txtForm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnTest))
                 .addGap(34, 34, 34)
                 .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -577,7 +585,7 @@ public class MainUI extends JFrame {
         
         lblForm.setText("Form:");
 
-        txtForm.addActionListener(new java.awt.event.ActionListener() {
+        txtFormName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField2ActionPerformed(evt);
             }
@@ -594,7 +602,7 @@ public class MainUI extends JFrame {
         btnTest.setText("Test");
         btnTest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                //jButton1ActionPerformed(evt);
             }
         });
 
@@ -657,10 +665,6 @@ public class MainUI extends JFrame {
         }//end if string notEmpty
     }//end updateRuleName()
     
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//event_jButton1ActionPerformed
-     
-        
-    }//event_jButton1ActionPerformed
     
     /*
      *  For when a user enters a query. query entering. enter a query
@@ -670,7 +674,7 @@ public class MainUI extends JFrame {
          System.out.println("hi there you pressed enter in the query field");
         String inputString = txtQueryBar.getText();
         
-        if (!"".equals(inputString)){ //also test if this is a valid query using parser
+        if (!"".equals(inputString)){ 
         	String xsltString="";
         	try {
 				//simpleXsltCompiler.processString(inputString);//"{reddfe-fve540}-{hi}+{/4342-yoammoma/CA-Return540}");
@@ -693,8 +697,10 @@ public class MainUI extends JFrame {
                 //textArea.setText(xsltBuilder.getXSLT());
                 
                 if(tempTE!=null){
-                	tempTE.appendRule(isAnd,xsltString);
+                	tempTE.appendRule(isAnd,xsltString,txtRuleName.getText(),spinnerAgency.getValue()+"",txtFormName.getText());
                 	tempTE.setIsSaved(false);
+                	txtRuleName.setText("");
+                	txtFormName.setText("");
                 }//end tempTE!=null
             	//jTextPane1.setText(xsltString);
                 
@@ -702,6 +708,18 @@ public class MainUI extends JFrame {
                 
             }
             txtQueryBar.setText("");
+        }else if(!"".equals(txtRuleName.getText())){
+        	Component tempC=jTabbedPane1.getSelectedComponent();
+            TextEditor tempTE=mapTabTE.get(tempC);
+            
+
+            if(tempTE!=null){
+            	tempTE.appendRule(isAnd,"",txtRuleName.getText(),spinnerAgency.getValue()+"",txtFormName.getText());
+            	tempTE.setIsSaved(false);
+            	txtRuleName.setText("");
+            	txtFormName.setText("");
+            }//end tempTE!=null
+        	//jTextPane1.setText(xsltString);
         }
     }//GEN-LAST:event_jTextField3ActionPerformed
 
@@ -739,6 +757,7 @@ public class MainUI extends JFrame {
      */
     private void updateEditedFileTitle(){
     	System.out.println("zomh");
+    	
         Component tempC = jTabbedPane1.getSelectedComponent();
         int tempI = jTabbedPane1.getSelectedIndex();
         TextEditor tempTE = mapTabTE.get(tempC);
@@ -784,11 +803,13 @@ public class MainUI extends JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainUI().setVisible(true);
-            }
+            	MainUI mainFrame=new MainUI();
+            	mainFrame.setVisible(true);
+     
+            }//end run()
         });
     }//end main()
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+
     private JToggleButton btnAndOr;
     private JToggleButton btnAndOr1;
     private ButtonGroup buttonGroup1;
@@ -801,7 +822,7 @@ public class MainUI extends JFrame {
     private JLabel lblPressEnter;
     private JLabel jLabel9;
     private JTextField txtRuleName;
-    private JTextField txtForm;
+    private JTextField txtFormName;
     private JTextField txtQueryBar;
     private JSpinner spinnerAgency;
     private JMenu jMenu1;
@@ -828,5 +849,4 @@ public class MainUI extends JFrame {
     private JSplitPane splitPaneLeft;
     private JSplitPane splitPaneLeftRight;
     private JSplitPane splitPaneRight;
-    // End of variables declaration//GEN-END:variables
 }
