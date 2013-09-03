@@ -32,7 +32,7 @@ public class XsltVisitor extends SimpleXsltBaseVisitor<STO>{
 			//Check if ID exists in XSL!!
 			//TODO
 			String id = prepXPath(stripBraces(ctx.getText()));
-			return new ExprSTO(id,new FloatType("expr float"));
+			return new VarSTO(id,new FloatType("IDENT"));
 			
 		}else if(ctx.T_STRING_LITERAL()!=null){
 			System.out.println("T_STRING_LITERAL");
@@ -54,10 +54,14 @@ public class XsltVisitor extends SimpleXsltBaseVisitor<STO>{
 	}//end visitAtom(ctx)
 	
 	public STO visitMystart(SimpleXsltParser.MystartContext ctx){
-		if(ctx==null) return new ErrorSTO("myStart~");
+		if(ctx==null) return new ErrorSTO("myStartErr");
 		STO expr=visitExpr(ctx.expr());
 		if(expr!=null){
 			return expr;
+		}
+		System.out.println("MYstart!");
+		if (expr!=null && expr.isVar()){
+			expr.setName("exists("+expr.getName()+")");
 		}
 		return expr;
 	}//end visitMystart(ctx)
@@ -152,6 +156,14 @@ public class XsltVisitor extends SimpleXsltBaseVisitor<STO>{
 				 op="&gt;";
 			 }else {//>=
 				 op="&gte;";
+			 }
+			 
+			 if(a instanceof ConstSTO && b instanceof VarSTO){
+				 return new ExprSTO(a.getName()+" "+op+" "+"xs:decimal("+b.getName()+")");
+			 }else if(a instanceof VarSTO && b instanceof ConstSTO){
+				 return new ExprSTO("xs:decimal("+a.getName()+") "+op+" "+b.getName());
+			 }else if(a instanceof VarSTO && b instanceof VarSTO){
+				 return new ExprSTO("xs:decimal("+a.getName()+") "+op+" xs:decimal("+b.getName()+")");
 			 }
 			return new ExprSTO(a.getName()+" "+op+" "+b.getName());
 		 }//end if childCount

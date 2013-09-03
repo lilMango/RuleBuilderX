@@ -32,7 +32,7 @@ public abstract class STO
       return m_strName;
   }
 
-  void
+  public void
   setName (String str)
   {
       m_strName = str;
@@ -53,7 +53,7 @@ public abstract class STO
       m_type = type;
   }
 
-
+  
 
   //----------------------------------------------------------------
   //  It will be helpful to ask a STO what specific STO it is.
@@ -65,7 +65,8 @@ public abstract class STO
   public boolean  isConst ()  { return false; }
   public boolean  isExpr ()   { return false; }
   public boolean  isFunc ()   { return false; }
-
+  public boolean  isID()	  { return false; }
+  
   public boolean  isError ()  { return false; }
   public boolean  isNullSTO (){return false;}
    

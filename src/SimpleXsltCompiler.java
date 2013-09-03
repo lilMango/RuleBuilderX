@@ -35,6 +35,7 @@ import org.antlr.v4.runtime.misc.TestRig;
 
 import com.intuit.cg.lang.simplexslt.ErrorSTO;
 import com.intuit.cg.lang.simplexslt.STO;
+import com.intuit.cg.lang.simplexslt.VarSTO;
 
 public class SimpleXsltCompiler {
 
@@ -152,7 +153,9 @@ public class SimpleXsltCompiler {
 	
 	}//end processString(String)
 	
-	
+	/*
+	 * Process a document and returns a gui or tree
+	 */
 	public void processFile(String argFile) throws Exception {
 //		System.out.println("exec "+grammarName+"."+startRuleName);
 		String lexerName = grammarName+"Lexer";
@@ -207,7 +210,9 @@ public class SimpleXsltCompiler {
 		
 	}//end processFile(String argFile)
 	
-	
+	/*
+	 * Helper method
+	 */
 	protected void process(Lexer lexer, Class<? extends Parser> parserClass, Parser parser, InputStream is, Reader r) throws IOException, IllegalAccessException, InvocationTargetException, PrintException {
 		try {
 			ANTLRInputStream input = new ANTLRInputStream(r);
@@ -298,8 +303,12 @@ public class SimpleXsltCompiler {
 		*/
 		XsltVisitor v = new XsltVisitor();
 		STO fw=v.visit(tree);
-		System.out.println("===@translateToXslt "+fw.getName());
-		if(!(fw instanceof ErrorSTO))
+		
+		System.out.println("===@SimpleXsltCompiler.translateToXslt "+fw.getName());
+		if (fw instanceof VarSTO){
+			return "exists("+fw.getName()+")";
+		}
+		else if(!(fw instanceof ErrorSTO))
 			return fw.getName();
 		else
 			return "";

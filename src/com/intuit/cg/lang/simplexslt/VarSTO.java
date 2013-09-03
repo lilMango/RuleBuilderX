@@ -1,6 +1,6 @@
 package com.intuit.cg.lang.simplexslt;
 
-class VarSTO extends STO
+public class VarSTO extends STO
 {
     //----------------------------------------------------------------
     //

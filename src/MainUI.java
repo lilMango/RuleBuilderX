@@ -22,9 +22,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -36,6 +38,8 @@ import javax.swing.tree.TreeModel;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
@@ -43,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.KeyEventDispatcher;
@@ -100,8 +105,6 @@ public class MainUI extends JFrame {
     public MainUI() {
         keyManager.addKeyEventDispatcher(new MyDispatcher()); // so ctrl-s is application wide
       
-       //TODO FIX WHY its printing twice
-        //configFiler.writeConfig();
         configFiler.readConfig();
 
         initComponents();
@@ -254,6 +257,12 @@ public class MainUI extends JFrame {
 	                        configFiler.addWorkspace(workspacePanel.getFieldText(name),workspacePanel.getFieldText(dir));
 	                        configFiler.writeConfig();
 	                        comboBoxWorkspace.setModel(new DefaultComboBoxModel(configFiler.getWorkspaces()));
+	                        comboBoxWorkspace.setSelectedIndex(comboBoxWorkspace.getItemCount()-3);
+	                     
+	                        File file=new File(workspacePanel.getFieldText(dir));
+	    	                fileSystemModel = new FileSystemModel(file);
+	   	                    jTreeFileSystem.setModel(fileSystemModel);
+	   	                    //TODO fix adding workspaces
 	                     }
 	            	    
 	            	    
@@ -308,15 +317,16 @@ public class MainUI extends JFrame {
         lblForm = new javax.swing.JLabel();
         txtFormName = new javax.swing.JTextField();
         lblConditions = new javax.swing.JLabel();
-        txtQueryBar = new javax.swing.JTextField();
+        txtQueryBar = new JTextArea();
         btnTest = new javax.swing.JButton();
-        btnAndOr = new javax.swing.JToggleButton();
         lblPressEnter = new javax.swing.JLabel();
-        btnAndOr1 = new javax.swing.JToggleButton();
         paneEditor = new JPanel();
+        btnRule= new JButton();
         
-	    buttonGroup1 = new javax.swing.ButtonGroup();
-
+        radBtnAnd = new JRadioButton("And");
+        radBtnOr = new JRadioButton("Or");
+        buttonGroup = new ButtonGroup();
+       
         jScrollPane2 = new javax.swing.JScrollPane();
         paneTermHelper = new javax.swing.JPanel();
         txtTermHelper = new javax.swing.JTextField();
@@ -401,7 +411,7 @@ public class MainUI extends JFrame {
         splitPaneLeftRight.setDividerSize(10);
         splitPaneLeftRight.setOneTouchExpandable(true);
 
-        splitPaneLeft.setDividerLocation(400);
+        splitPaneLeft.setDividerLocation(4000);//400
         splitPaneLeft.setDividerSize(10);
         splitPaneLeft.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitPaneLeft.setOneTouchExpandable(true);
@@ -476,59 +486,65 @@ public class MainUI extends JFrame {
         javax.swing.GroupLayout paneQueryBarLayout = new javax.swing.GroupLayout(paneQueryBar);
         paneQueryBar.setLayout(paneQueryBarLayout);
         paneQueryBarLayout.setHorizontalGroup(
-            paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(paneQueryBarLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(paneQueryBarLayout.createSequentialGroup()
+                paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(paneQueryBarLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addGroup(paneQueryBarLayout.createSequentialGroup()
+                            .addComponent(lblRuleName)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(lblAgency)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGap(18, 18, 18)
+                            .addComponent(lblForm)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnTest))
+                        .addGroup(paneQueryBarLayout.createSequentialGroup()
+                            .addComponent(lblConditions)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(radBtnAnd)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(radBtnOr)
+                            .addGap(18, 18, 18)
+                            .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(paneQueryBarLayout.createSequentialGroup()
+                                    .addComponent(lblPressEnter)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(btnRule))
+                                .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addContainerGap(211, Short.MAX_VALUE))
+            );
+            paneQueryBarLayout.setVerticalGroup(
+                paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(paneQueryBarLayout.createSequentialGroup()
+                    .addGap(21, 21, 21)
+                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(lblRuleName)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(lblAgency)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
+                        .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(lblForm)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(btnTest))
-                    .addGroup(paneQueryBarLayout.createSequentialGroup()
+                    .addGap(34, 34, 34)
+                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(lblConditions)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAndOr)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnAndOr1)
-                        .addGap(18, 18, 18)
-                        .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblPressEnter)
-                            .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(211, Short.MAX_VALUE))
-        );
-        paneQueryBarLayout.setVerticalGroup(
-            paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(paneQueryBarLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblRuleName)
-                    .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblAgency)
-                    .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lblForm)
-                    .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnTest))
-                .addGap(34, 34, 34)
-                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblConditions)
-                    .addComponent(btnAndOr)
-                    .addComponent(btnAndOr1)
-                    .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblPressEnter)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+                        .addComponent(radBtnAnd)
+                        .addComponent(radBtnOr)
+                        .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lblPressEnter)
+                        .addComponent(btnRule))
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
 
+        
         splitPaneEditor.setTopComponent(paneQueryBar);
         
         javax.swing.GroupLayout paneEditorLayout = new javax.swing.GroupLayout(paneEditor);
@@ -570,7 +586,7 @@ public class MainUI extends JFrame {
         initCodeTextArea();
         
         lblRuleName.setText("Rule Name:");
-
+        btnRule.setText("Write");
         lblAgency.setText("Agency:");
 
         spinnerAgency.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -579,11 +595,13 @@ public class MainUI extends JFrame {
             }
         });
 
+        radBtnAnd.setSelected(true);
+        buttonGroup.add(radBtnAnd);
+        buttonGroup.add(radBtnOr);
         
-        btnAndOr1.setText("OR");
-        btnAndOr1.addActionListener(new java.awt.event.ActionListener() {
+        radBtnOr.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAndOr1ActionPerformed(evt);
+                isAnd=false;
             }
         });
         
@@ -597,12 +615,41 @@ public class MainUI extends JFrame {
 
         lblConditions.setText("Conditions:");
 
+        btnRule.addActionListener(new ActionListener(){
+        	public void actionPerformed(ActionEvent evt){
+        		txtQueryBarActionPerformed(evt);
+        	}
+        });
+        
+        txtQueryBar.setRows(3);
+        txtQueryBar.setColumns(50);
+        txtQueryBar.setWrapStyleWord(true);
+        txtQueryBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        //txtQueryBar;
+        txtQueryBar.getDocument().addDocumentListener(new DocumentListener(){
+
+			public void changedUpdate(DocumentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void insertUpdate(DocumentEvent arg0) {
+System.out.println("Insert to textBox!!");				
+			}
+
+			public void removeUpdate(DocumentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+        });
+        
+        /*
         txtQueryBar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jTextField3ActionPerformed(evt);
             }
         });
-
+        */
         btnTest.setText("Test");
         btnTest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -610,10 +657,10 @@ public class MainUI extends JFrame {
             }
         });
 
-        btnAndOr.setText("AND");
-        btnAndOr.addActionListener(new java.awt.event.ActionListener() {
+     
+        radBtnAnd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnAndOrActionPerformed(evt);
+                isAnd=true;
             }
         });
 
@@ -673,7 +720,7 @@ public class MainUI extends JFrame {
     /*
      *  For when a user enters a query. query entering. enter a query
      */
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
+    private void txtQueryBarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
 //activated by pressing enter by default
          System.out.println("hi there you pressed enter in the query field");
         String inputString = txtQueryBar.getText();
@@ -738,23 +785,11 @@ public class MainUI extends JFrame {
         System.out.println("change state on Spinner1");
     }//GEN-LAST:event_jSpinner1StateChanged
 
-    private void btnAndOrActionPerformed(java.awt.event.ActionEvent evt) {
-        isAnd=!isAnd;
-        if(isAnd){
-            btnAndOr.setText("AND");
-        }else{
-            btnAndOr.setText("OR");
-        }
-        System.out.println("PRessed AND/OR");
-    }//GEN-LAST:event_btnAndOrActionPerformed
+
 
     private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
         // 
     }//GEN-LAST:event_jTextField4ActionPerformed
-
-    private void btnAndOr1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAndOr1ActionPerformed
-        // 
-    }//GEN-LAST:event_btnAndOr1ActionPerformed
 
     /*
      * Used to mark with '*' when a document is not saved/edited in the title of file
@@ -814,9 +849,9 @@ public class MainUI extends JFrame {
         });
     }//end main()
 
-    private JToggleButton btnAndOr;
-    private JToggleButton btnAndOr1;
-    private ButtonGroup buttonGroup1;
+    private JRadioButton radBtnAnd;
+    private JRadioButton radBtnOr;
+    private ButtonGroup buttonGroup;
     private JButton btnTest;
     private JButton btnTermHelper;
     private JLabel lblRuleName;
@@ -827,7 +862,11 @@ public class MainUI extends JFrame {
     private JLabel jLabel9;
     private JTextField txtRuleName;
     private JTextField txtFormName;
-    private JTextField txtQueryBar;
+    private JButton btnRule;
+    private JTextArea txtQueryBar;//TODO convert to text Area. Action Listeners. 
+    							   //Automatically put test text inside text Area. 
+    							   //If can't parse just re-emit the same text converted. 
+    								//But try and find a way to reverse compile
     private JSpinner spinnerAgency;
     private JMenu jMenu1;
     private JMenu jMenu2;

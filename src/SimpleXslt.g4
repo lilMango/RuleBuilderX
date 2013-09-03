@@ -6,7 +6,6 @@ grammar SimpleXslt;
 mystart	:
 	| assignment
 	| expr
-
 	;
 	
 assignment	:

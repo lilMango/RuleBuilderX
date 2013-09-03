@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author mpaysan
+ * XsltBuilder spits out a template of xslt code generation. It is called to create a brand new rule
  */
 public class XsltBuilder {
     private ArrayList<Query> queryList;

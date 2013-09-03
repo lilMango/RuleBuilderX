@@ -39,7 +39,7 @@ import org.xml.sax.SAXException;
 
 /**
  *
- * @author mpaysan
+ * TextEditor contains the syntax highlighted Text Area and save/write functionality
  */
 public class TextEditor {
 	static final String BEGIN_RULE="<xsl:if test=";//"<!-- Begin";
@@ -327,7 +327,8 @@ public class TextEditor {
 				
 				try {
 					transformer.transform(new DOMSource(doc), new StreamResult(writer));
-					updatedRule= writer.getBuffer().toString();
+					updatedRule= writer.getBuffer().toString().replace("&amp;","&");
+					
 					
 				} catch (TransformerException e) {
 					// TODO Auto-generated catch block
