@@ -105,7 +105,7 @@ public class TextEditor {
      * updateRuleProps(String)
      * Update the closest rule to change the file name and or agency name
      */
-    public void updateRuleProps(String argStr){
+    public void updateRuleProps(String argRuleName , String argAgency){
     	int prevCaretPos=this.textArea.getCaretPosition();
     	
     	int currLine=-1;
@@ -128,8 +128,8 @@ public class TextEditor {
     	if(beginTag!=-1 && endTag!=-1){
 
     		//convert to string
-    		lines[beginTag-1]="<!-- Begin "+argStr+"-->";
-    		lines[endTag+1]="<!-- End "+argStr+"-->";
+    		lines[beginTag-1]="<!-- Begin "+argRuleName+"-->";
+    		lines[endTag+1]="<!-- End "+argRuleName+"-->";
     		StringBuffer tempRule=new StringBuffer();
     		for(int i=beginTag;i<=endTag;i++){
     			tempRule.append(lines[i]+"\n");
@@ -162,20 +162,22 @@ public class TextEditor {
 				doc.getDocumentElement().normalize();
 				
 
-				Node xslTag= doc.getFirstChild();
-				//System.out.println("xsl : "+xslTag.getNodeName());
-				Node errorTag = xslTag.getChildNodes().item(1);
-				Node xAttr1Tag = errorTag.getChildNodes().item(1);
-				Node errCode=xAttr1Tag.getFirstChild();
+			//TODO add argStr to errorCode!!
 				
-				if(errCode!=null){
-					errCode.setNodeValue(argStr);
-		
-				}else{
-					xAttr1Tag.setTextContent(argStr);
-				}
-				//TODO add argStr to errorCode!!
-
+				NodeList layerConfigList = doc.getElementsByTagName("xsl:attribute");
+				for(int i=0;i<layerConfigList.getLength();i++){
+					Node node = layerConfigList.item(i);
+					Element e = (Element)node;
+					String attrName = e.getAttribute("name");
+					System.out.println("name?=  "+attrName+"\ttext="+e.getTextContent());
+					if("errorCode".equals(attrName)){
+						e.setTextContent(argRuleName);
+					}else if("RejectingAgency".equals(attrName)){
+						e.setTextContent(argAgency);
+					}
+					
+				}//end for i
+				
 			}else{
 				return;
 			}			
@@ -224,8 +226,9 @@ public class TextEditor {
     	}else{ //in a completely new area
     		int curPos=this.textArea.getCaretPosition();
     		XsltBuilder xbTemp=new XsltBuilder("");
-    		xbTemp.setRulename(argStr);
-    		this.textArea.insert(xbTemp.getXSLT(), curPos);         		
+    		xbTemp.setRulename(argRuleName);
+    		this.textArea.insert(xbTemp.getXSLT(), curPos); 
+    		this.textArea.setCaretPosition(curPos+100);
     	}//end if beginTag!=-1 && endTag!=-1
     }//end updateRuleProps(String)
 
@@ -366,6 +369,7 @@ public class TextEditor {
         	xb.setRulename(ruleName);
         	xb.setFormname(formName);
     		this.textArea.insert(xb.getXSLT(), curPos);         		
+    		this.textArea.setCaretPosition(curPos+50);
     	}//end if beginTag!=-1 && endTag!=-1
     	    	
     }//appendRule(String)

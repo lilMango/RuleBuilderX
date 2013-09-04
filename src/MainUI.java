@@ -253,7 +253,6 @@ public class MainUI extends JFrame {
 	                        */
 	                        WorkspacePanel.FieldTitle name = WorkspacePanel.FieldTitle.NAME;
 	                        WorkspacePanel.FieldTitle dir = WorkspacePanel.FieldTitle.ROOTDIR;
-	                        //System.out.println("FE: "+workspacePanel.getFieldText(name)+"  "+workspacePanel.getFieldText(dir));
 	                        configFiler.addWorkspace(workspacePanel.getFieldText(name),workspacePanel.getFieldText(dir));
 	                        configFiler.writeConfig();
 	                        comboBoxWorkspace.setModel(new DefaultComboBoxModel(configFiler.getWorkspaces()));
@@ -430,10 +429,10 @@ public class MainUI extends JFrame {
             }
         });
 
-        btnTermHelper.setText("mg");
+        btnTermHelper.setText("search");
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
-        jLabel9.setText("is significant: just enter field name");
+        jLabel9.setText("is significant: just type in a field name");
 
         javax.swing.GroupLayout paneTermHelperLayout = new javax.swing.GroupLayout(paneTermHelper);
         paneTermHelper.setLayout(paneTermHelperLayout);
@@ -581,6 +580,10 @@ public class MainUI extends JFrame {
            public void keyTyped(KeyEvent evt){
         	  //updateRuleName(false);
             }
+           
+           public void keyReleased(KeyEvent evt){
+        	   updateRuleName(false);
+           }
          });//end addKeyListener
 
         initCodeTextArea();
@@ -591,7 +594,8 @@ public class MainUI extends JFrame {
 
         spinnerAgency.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                jSpinner1StateChanged(evt);
+                //jSpinner1StateChanged(evt);
+            	updateRuleName(false);
             }
         });
 
@@ -693,11 +697,12 @@ System.out.println("Insert to textBox!!");
      * Changes rule name from txt Rule Name
      */
     private void updateRuleName(boolean reset){
-    	
-        xsltBuilder.setRulename(txtRuleName.getText());
-        System.out.println("entered on Rulename");
-        
+
         String inputString = txtRuleName.getText();
+    	
+        xsltBuilder.setRulename(inputString);
+        System.out.println("entered on Rulename: " + inputString);
+        
         
         if (!"".equals(inputString)){ //also test if this is a valid query using parser
     
@@ -706,7 +711,7 @@ System.out.println("Insert to textBox!!");
             
             
             if(tempTE!=null){
-            	tempTE.updateRuleProps(inputString);
+            	tempTE.updateRuleProps(inputString,spinnerAgency.getValue()+"");
             	tempTE.setIsSaved(false);
             }//end tempTE!=null
           
