@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.swing.Icon;
 import javax.swing.text.BadLocationException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -31,6 +30,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import com.intuit.cg.lang.simplexslt.XsltEncoder;
+import com.sun.javafx.sg.PGShape.Mode;
 
 /*
  * To change this template, choose Tools | Templates
@@ -74,21 +76,12 @@ public class TextEditor {
          
          }//end keyPressed(KeyEvent)
          
-         public void keyReleased(KeyEvent evt){}
+         public void keyReleased(KeyEvent evt){
+        	 System.out.println("Key Released!");
+         }
 
      });//end textArea.addKeyListener()
-        rScrollPane.addKeyListener(new KeyAdapter(){
-         public void keyPressed(KeyEvent evt){
-             if(evt.isControlDown() && evt.getKeyCode() == KeyEvent.VK_S){
-                 System.out.println("Saved called inside ScrollPane!");
-            }
-         
-         }//end keyPressed(KeyEvent)
-         
-         public void keyReleased(KeyEvent evt){}
-         public void keyType(KeyEvent evt){System.out.println("type in ScrollArea);");}
-     });//end rScrollPane.addKeyListener()
-        
+    
     }//end constructor(File)
     
     public RSyntaxTextArea getTextArea(){
@@ -184,15 +177,19 @@ public class TextEditor {
 
 			//Update rule: XML dom -> string
 			String updatedRule="";
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
+			//System.setProperty("javax.xml.transform.TransformerFactory","org.apache.xalan.processor.TransformerFactoryImpl");
+			TransformerFactory tf = TransformerFactory.newInstance();//"org.apache.xalan.processor.TransformerFactoryImpl",null); //TODO it will use the net.sf.saxon by default if loaded
+			javax.xml.transform.Transformer transformer;
 			try {
 				transformer = tf.newTransformer();
 				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 				StringWriter writer = new StringWriter();
 				
 				try {
-					transformer.transform(new DOMSource(doc), new StreamResult(writer));
+					System.out.println(doc.getTextContent());
+					transformer.transform(
+							new javax.xml.transform.dom.DOMSource(doc),
+							new javax.xml.transform.stream.StreamResult(writer));
 					updatedRule= writer.getBuffer().toString();
 					
 				} catch (TransformerException e) {
@@ -395,7 +392,8 @@ public class TextEditor {
     public void saveFile(){
         if(!isSaved){
             try {
- 
+            	textArea.setText(XsltEncoder.encode(textArea.getText()));
+            	
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(textArea.getText());
@@ -509,4 +507,27 @@ public class TextEditor {
     	System.out.println("----");
     	return -1;
     }//end findEndTag(String[],int)
+    
+    /*
+     * replaces text within textArea to encode to xslt form. ie. < turns to &lt
+     */
+    public void doXsltEncode(){
+    	
+    }
+    private class CompletionTask implements Runnable{
+    	String completion;
+    	int position;
+    	
+    	CompletionTask(String completion, int position){
+    		this.completion=completion;
+    		this.position=position;
+    	}
+		public void run() {
+			textArea.insert(completion, position);
+			textArea.setCaretPosition(position + completion.length());
+            textArea.moveCaretPosition(position);
+            //mode = Mode.COMPLETION;
+		}
+    	
+    }//end class CompletionTask
 }//end class Editor

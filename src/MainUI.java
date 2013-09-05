@@ -7,7 +7,8 @@ import com.intuit.cg.lang.simplexslt.*;
 import com.intuit.cg.tools.filesystem.*;
 import com.intuit.cg.tools.rules.utils.TextEditor;
 import com.intuit.cg.tools.rules.utils.XsltBuilder;
-
+import com.sun.javafx.sg.PGShape.Mode;
+//import com.intuit.fsapp.Validator;
 import java.awt.Component;
 
 import javax.swing.ButtonGroup;
@@ -31,8 +32,10 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerModel;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.TreeModel;
 
@@ -59,11 +62,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.fife.ui.autocomplete.*;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
@@ -80,7 +86,6 @@ import org.xml.sax.SAXException;
  * @author mpaysan
  */
 public class MainUI extends JFrame {
-    private static int hi=0;
     KeyboardFocusManager keyManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
      
     private RSyntaxTextArea textArea;
@@ -137,17 +142,12 @@ public class MainUI extends JFrame {
                     Component tempC = jTabbedPane1.getSelectedComponent();
                     int tempI = jTabbedPane1.getSelectedIndex();
                     TextEditor tempTE=mapTabTE.get(tempC);
-                    
-                    System.out.println("Times saved: "+hi++);
-                    System.out.println(jTabbedPane1.getTitleAt(tempI));
-                    
+
                     if(tempTE!=null){
-                        System.out.println("am i saved?: "+tempTE.isSaved());
                         if(!tempTE.isSaved()){
                             tempTE.saveFile();
                             mapTabTE.put(tempC, tempTE);
                             jTabbedPane1.setTitleAt(tempI,tempTE.getName());
-                            System.out.println("is Saved");
                         }
                     }else{
                         System.out.println("invalid file");
@@ -161,7 +161,34 @@ public class MainUI extends JFrame {
                 }
             } else if (e.getID() == KeyEvent.KEY_TYPED){
             	updateEditedFileTitle();
-      
+            	String tmp="   <xsl:if test=\"a < b\">\n"+
+            				"\t<Error>\n"+
+            				"\t\t<xsl:attribute name=\"errorCode\">faf</xsl:attribute>\n"+
+            				"\t\t<xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
+            				"\t\t<xsl:attribute name=\"RejectingAgency\">AK</xsl:attribute>\n"+
+            				"\t</Error>\n"+
+            				"  </xsl:if>"+
+            				
+            				"   <xsl:if test=\"a < b\">\n"+
+            				"\t<Error>\n"+
+            				"\t\t<xsl:attribute name=\"errorCode\">faf</xsl:attribute>\n"+
+            				"\t\t<xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
+            				"\t\t<xsl:attribute name=\"RejectingAgency\">AK</xsl:attribute>\n"+
+            				"\t</Error>\n"+
+            				"  </xsl:if>"+
+            				
+							"   <xsl:if test=\"a <= b < 3434\">\n"+
+							"\t<Error>\n"+
+							"\t\t<xsl:attribute name=\"errorCode\">faf</xsl:attribute>\n"+
+							"\t\t<xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
+							"\t\t<xsl:attribute name=\"RejectingAgency\">AK</xsl:attribute>\n"+
+							"\t</Error>\n"+
+							"  </xsl:if>"
+            			;
+            	
+            	XsltEncoder.encode(tmp);
+               
+            	
             }
             return false;
         }//end dispatchKeyEvent()
@@ -181,6 +208,8 @@ public class MainUI extends JFrame {
       textArea.setCodeFoldingEnabled(true);
       textArea.setAntiAliasingEnabled(true);
       rScrollPane = new RTextScrollPane(textArea);
+      
+
       textArea.setText("Welcome to the XSLT Rule Builder!\n\n"+
     		  			"A Bizarre Syntax Production.");
       jTabbedPane1.addTab("Welcome", rScrollPane);  
@@ -316,7 +345,7 @@ public class MainUI extends JFrame {
         lblForm = new javax.swing.JLabel();
         txtFormName = new javax.swing.JTextField();
         lblConditions = new javax.swing.JLabel();
-        txtQueryBar = new JTextArea();
+        txtQueryBar = new RSyntaxTextArea();
         btnTest = new javax.swing.JButton();
         lblPressEnter = new javax.swing.JLabel();
         paneEditor = new JPanel();
@@ -341,6 +370,10 @@ public class MainUI extends JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
 
+        txtQueryBar.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
+        txtQueryBar.setCodeFoldingEnabled(false);
+        txtQueryBar.setAntiAliasingEnabled(true);
+        
         jTabbedPane1 = new ClosableTabbedPane(){
     		public boolean tabAboutToClose(int tabIndex) {
     			String tab = jTabbedPane1.getTabTitleAt(tabIndex);
@@ -425,7 +458,7 @@ public class MainUI extends JFrame {
         txtTermHelper.setText("ie. is significant");
         txtTermHelper.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField4ActionPerformed(evt);
+                
             }
         });
 
@@ -463,17 +496,23 @@ public class MainUI extends JFrame {
         javax.swing.GroupLayout paneRightLayout = new javax.swing.GroupLayout(paneRight);
         paneRight.setLayout(paneRightLayout);
         paneRightLayout.setHorizontalGroup(
-            paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(paneRightLayout.createSequentialGroup()
-                .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 150, Short.MAX_VALUE))
-        );
-        paneRightLayout.setVerticalGroup(
-            paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(paneRightLayout.createSequentialGroup()
-                .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(584, Short.MAX_VALUE))
-        );
+                paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(paneRightLayout.createSequentialGroup()
+                    .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 150, Short.MAX_VALUE))
+                .addGroup(paneRightLayout.createSequentialGroup()
+                    .addContainerGap()
+                    .addComponent(btnTest)
+                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
+            paneRightLayout.setVerticalGroup(
+                paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(paneRightLayout.createSequentialGroup()
+                    .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(42, 42, 42)
+                    .addComponent(btnTest)
+                    .addContainerGap(519, Short.MAX_VALUE))
+            );
 
         splitPaneRight.setRightComponent(paneRight);
         splitPaneRight.setResizeWeight(1.0);
@@ -482,68 +521,66 @@ public class MainUI extends JFrame {
         splitPaneEditor.setOneTouchExpandable(true);
         
 /////////////////////////////////////////////////////// Middle ///////////////////////
+       
         javax.swing.GroupLayout paneQueryBarLayout = new javax.swing.GroupLayout(paneQueryBar);
         paneQueryBar.setLayout(paneQueryBarLayout);
         paneQueryBarLayout.setHorizontalGroup(
-                paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(paneQueryBarLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addGroup(paneQueryBarLayout.createSequentialGroup()
-                            .addComponent(lblRuleName)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(lblAgency)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(18, 18, 18)
-                            .addComponent(lblForm)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(btnTest))
-                        .addGroup(paneQueryBarLayout.createSequentialGroup()
-                            .addComponent(lblConditions)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(radBtnAnd)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(radBtnOr)
-                            .addGap(18, 18, 18)
-                            .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(paneQueryBarLayout.createSequentialGroup()
-                                    .addComponent(lblPressEnter)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(btnRule))
-                                .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, 394, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addContainerGap(211, Short.MAX_VALUE))
-            );
-            paneQueryBarLayout.setVerticalGroup(
-                paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(paneQueryBarLayout.createSequentialGroup()
-                    .addGap(21, 21, 21)
-                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+            paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(paneQueryBarLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(paneQueryBarLayout.createSequentialGroup()
                         .addComponent(lblRuleName)
-                        .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(lblAgency)
-                        .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
                         .addComponent(lblForm)
-                        .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnTest))
-                    .addGap(34, 34, 34)
-                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 447, Short.MAX_VALUE))
+                    .addGroup(paneQueryBarLayout.createSequentialGroup()
                         .addComponent(lblConditions)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radBtnAnd)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(radBtnOr)
-                        .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lblPressEnter)
-                        .addComponent(btnRule))
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            );
+                        .addGap(18, 18, 18)
+                        .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(paneQueryBarLayout.createSequentialGroup()
+                                .addComponent(lblPressEnter)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnRule))
+                            .addComponent(txtQueryBar))))
+                .addContainerGap())
+        );
+        paneQueryBarLayout.setVerticalGroup(
+            paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(paneQueryBarLayout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblRuleName)
+                    .addComponent(txtRuleName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblAgency)
+                    .addComponent(spinnerAgency, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblForm)
+                    .addComponent(txtFormName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(36, 36, 36)
+                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblConditions)
+                    .addComponent(radBtnAnd)
+                    .addComponent(radBtnOr)
+                    .addComponent(txtQueryBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(paneQueryBarLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPressEnter)
+                    .addComponent(btnRule))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
 
-        
         splitPaneEditor.setTopComponent(paneQueryBar);
         
         javax.swing.GroupLayout paneEditorLayout = new javax.swing.GroupLayout(paneEditor);
@@ -573,7 +610,8 @@ public class MainUI extends JFrame {
         
         txtRuleName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                updateRuleName(true);
+            	if(!"".equals(txtRuleName.getText()))
+            		updateRuleName(true);
             }
         });
         txtRuleName.addKeyListener(new KeyAdapter(){
@@ -582,7 +620,7 @@ public class MainUI extends JFrame {
             }
            
            public void keyReleased(KeyEvent evt){
-        	   updateRuleName(false);
+        	   if(!"".equals(txtRuleName.getText()))        		   updateRuleName(false);
            }
          });//end addKeyListener
 
@@ -594,8 +632,7 @@ public class MainUI extends JFrame {
 
         spinnerAgency.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                //jSpinner1StateChanged(evt);
-            	updateRuleName(false);
+                //updateRuleName(false);
             }
         });
 
@@ -633,12 +670,13 @@ public class MainUI extends JFrame {
         txtQueryBar.getDocument().addDocumentListener(new DocumentListener(){
 
 			public void changedUpdate(DocumentEvent arg0) {
-				// TODO Auto-generated method stub
+				
 				
 			}
-
+			
+			//autoComplete
 			public void insertUpdate(DocumentEvent arg0) {
-System.out.println("Insert to textBox!!");				
+
 			}
 
 			public void removeUpdate(DocumentEvent arg0) {
@@ -658,6 +696,7 @@ System.out.println("Insert to textBox!!");
         btnTest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 //jButton1ActionPerformed(evt);
+            	//Validator.validate();
             }
         });
 
@@ -668,7 +707,7 @@ System.out.println("Insert to textBox!!");
             }
         });
 
-        lblPressEnter.setText("(Press enter)");
+        lblPressEnter.setText(" ");
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -703,22 +742,18 @@ System.out.println("Insert to textBox!!");
         xsltBuilder.setRulename(inputString);
         System.out.println("entered on Rulename: " + inputString);
         
+    	Component tempC=jTabbedPane1.getSelectedComponent();
+        TextEditor tempTE=mapTabTE.get(tempC);
         
-        if (!"".equals(inputString)){ //also test if this is a valid query using parser
-    
-        	Component tempC=jTabbedPane1.getSelectedComponent();
-            TextEditor tempTE=mapTabTE.get(tempC);
-            
-            
-            if(tempTE!=null){
-            	tempTE.updateRuleProps(inputString,spinnerAgency.getValue()+"");
-            	tempTE.setIsSaved(false);
-            }//end tempTE!=null
-          
-            updateEditedFileTitle();
-            if(reset)
-            	txtRuleName.setText("");
-        }//end if string notEmpty
+        
+        if(tempTE!=null){
+        	tempTE.updateRuleProps(inputString,spinnerAgency.getValue()+"");
+        	tempTE.setIsSaved(false);
+        }//end tempTE!=null
+      
+        updateEditedFileTitle();
+        if(reset)
+        	txtRuleName.setText("");
     }//end updateRuleName()
     
     
@@ -792,9 +827,6 @@ System.out.println("Insert to textBox!!");
 
 
 
-    private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
-        // 
-    }//GEN-LAST:event_jTextField4ActionPerformed
 
     /*
      * Used to mark with '*' when a document is not saved/edited in the title of file
@@ -816,6 +848,8 @@ System.out.println("Insert to textBox!!");
             }
         }//end tempTE!=null
     }//end updateChangedText()
+    
+    
     /**
      * @param args the command line arguments
      */
@@ -868,7 +902,7 @@ System.out.println("Insert to textBox!!");
     private JTextField txtRuleName;
     private JTextField txtFormName;
     private JButton btnRule;
-    private JTextArea txtQueryBar;//TODO convert to text Area. Action Listeners. 
+    private RSyntaxTextArea txtQueryBar;//TODO convert to text Area. Action Listeners. 
     							   //Automatically put test text inside text Area. 
     							   //If can't parse just re-emit the same text converted. 
     								//But try and find a way to reverse compile
