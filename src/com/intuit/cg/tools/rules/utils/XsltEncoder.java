@@ -1,4 +1,4 @@
-package com.intuit.cg.lang.simplexslt;
+package com.intuit.cg.tools.rules.utils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,9 +18,7 @@ public class XsltEncoder {
             m.appendReplacement(sb, test);
         }
         m.appendTail(sb);
-        System.out.println(sb.toString());
-        
-		
+       
 		return sb.toString();
 	}
 	

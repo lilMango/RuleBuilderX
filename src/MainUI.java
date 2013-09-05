@@ -7,7 +7,8 @@ import com.intuit.cg.lang.simplexslt.*;
 import com.intuit.cg.tools.filesystem.*;
 import com.intuit.cg.tools.rules.utils.TextEditor;
 import com.intuit.cg.tools.rules.utils.XsltBuilder;
-import com.sun.javafx.sg.PGShape.Mode;
+import com.intuit.cg.tools.rules.utils.XsltEncoder;
+
 //import com.intuit.fsapp.Validator;
 import java.awt.Component;
 
@@ -15,8 +16,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -610,8 +609,21 @@ public class MainUI extends JFrame {
         
         txtRuleName.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-            	if(!"".equals(txtRuleName.getText()))
-            		updateRuleName(true);
+            	String inputString = txtRuleName.getText();
+ 	           
+         	    if(!"".equals(inputString)) {
+                    
+                	Component tempC=jTabbedPane1.getSelectedComponent();
+                    TextEditor tempTE=mapTabTE.get(tempC);
+                    
+                    if(tempTE!=null){
+                    	tempTE.updateRuleProps(inputString,"",true);
+                    	tempTE.setIsSaved(false);
+                    }//end tempTE!=null
+                  
+                    updateEditedFileTitle();
+                    txtRuleName.setText("");
+            	}
             }
         });
         txtRuleName.addKeyListener(new KeyAdapter(){
@@ -620,7 +632,20 @@ public class MainUI extends JFrame {
             }
            
            public void keyReleased(KeyEvent evt){
-        	   if(!"".equals(txtRuleName.getText()))        		   updateRuleName(false);
+       		String inputString = txtRuleName.getText();
+	           
+        	   if(!"".equals(inputString)) {
+	                
+	            	Component tempC=jTabbedPane1.getSelectedComponent();
+	                TextEditor tempTE=mapTabTE.get(tempC);
+	                
+	                if(tempTE!=null){
+	                	tempTE.updateRuleProps(inputString,"",true);
+	                	tempTE.setIsSaved(false);
+	                }//end tempTE!=null
+	              
+	                updateEditedFileTitle();
+                }
            }
          });//end addKeyListener
 
@@ -632,7 +657,15 @@ public class MainUI extends JFrame {
 
         spinnerAgency.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                //updateRuleName(false);
+            	Component tempC=jTabbedPane1.getSelectedComponent();
+                TextEditor tempTE=mapTabTE.get(tempC);
+                
+                if(tempTE!=null){
+                	tempTE.updateRuleProps("",spinnerAgency.getValue()+"",false);
+                	tempTE.setIsSaved(false);
+                }//end tempTE!=null
+              
+                updateEditedFileTitle();
             }
         });
 
@@ -732,30 +765,7 @@ public class MainUI extends JFrame {
     }
 
 
-    /*
-     * Changes rule name from txt Rule Name
-     */
-    private void updateRuleName(boolean reset){
 
-        String inputString = txtRuleName.getText();
-    	
-        xsltBuilder.setRulename(inputString);
-        System.out.println("entered on Rulename: " + inputString);
-        
-    	Component tempC=jTabbedPane1.getSelectedComponent();
-        TextEditor tempTE=mapTabTE.get(tempC);
-        
-        
-        if(tempTE!=null){
-        	tempTE.updateRuleProps(inputString,spinnerAgency.getValue()+"");
-        	tempTE.setIsSaved(false);
-        }//end tempTE!=null
-      
-        updateEditedFileTitle();
-        if(reset)
-        	txtRuleName.setText("");
-    }//end updateRuleName()
-    
     
     /*
      *  For when a user enters a query. query entering. enter a query

@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 import javax.xml.parsers.DocumentBuilder;
@@ -31,7 +33,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import com.intuit.cg.lang.simplexslt.XsltEncoder;
 import com.sun.javafx.sg.PGShape.Mode;
 
 /*
@@ -98,7 +99,7 @@ public class TextEditor {
      * updateRuleProps(String)
      * Update the closest rule to change the file name and or agency name
      */
-    public void updateRuleProps(String argRuleName , String argAgency){
+    public void updateRuleProps(String argRuleName , String argAgency,boolean changeRuleName){
     	int prevCaretPos=this.textArea.getCaretPosition();
     	
     	int currLine=-1;
@@ -121,84 +122,27 @@ public class TextEditor {
     	if(beginTag!=-1 && endTag!=-1){
 
     		//convert to string
-    		lines[beginTag-1]="<!-- Begin "+argRuleName+"-->";
-    		lines[endTag+1]="<!-- End "+argRuleName+"-->";
+    		if(changeRuleName){
+    			lines[beginTag-1]="<!-- Begin "+argRuleName+"-->";
+    			lines[endTag+1]="<!-- End "+argRuleName+"-->";
+    		}
+    		
     		StringBuffer tempRule=new StringBuffer();
     		for(int i=beginTag;i<=endTag;i++){
     			tempRule.append(lines[i]+"\n");
 			}//end for i
     		
+ 
     		
-    		//string -> XML dom
-    		DocumentBuilder db;
-    		Document doc=null;
-			try {
-				db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-           		InputSource is = new InputSource();
-        		is.setCharacterStream(new StringReader(tempRule.toString()));
-        		try {
-					doc = db.parse(is);
-				} catch (SAXException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-        		
-			} catch (ParserConfigurationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}//end try-catch
-
-    		//add new condition to test attribute
-			//TODO Consider using Apache XmlBeans and XmlCursor
-			if(doc!=null){
-				doc.getDocumentElement().normalize();
-				
-
-			//TODO add argStr to errorCode!!
-				
-				NodeList layerConfigList = doc.getElementsByTagName("xsl:attribute");
-				for(int i=0;i<layerConfigList.getLength();i++){
-					Node node = layerConfigList.item(i);
-					Element e = (Element)node;
-					String attrName = e.getAttribute("name");
-					System.out.println("name?=  "+attrName+"\ttext="+e.getTextContent());
-					if("errorCode".equals(attrName)){
-						e.setTextContent(argRuleName);
-					}else if("RejectingAgency".equals(attrName)){
-						e.setTextContent(argAgency);
-					}
-					
-				}//end for i
-				
-			}else{
-				return;
-			}			
-
-			//Update rule: XML dom -> string
-			String updatedRule="";
-			//System.setProperty("javax.xml.transform.TransformerFactory","org.apache.xalan.processor.TransformerFactoryImpl");
-			TransformerFactory tf = TransformerFactory.newInstance();//"org.apache.xalan.processor.TransformerFactoryImpl",null); //TODO it will use the net.sf.saxon by default if loaded
-			javax.xml.transform.Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-				StringWriter writer = new StringWriter();
-				
-				try {
-					System.out.println(doc.getTextContent());
-					transformer.transform(
-							new javax.xml.transform.dom.DOMSource(doc),
-							new javax.xml.transform.stream.StreamResult(writer));
-					updatedRule= writer.getBuffer().toString();
-					
-				} catch (TransformerException e) {
-	
-					e.printStackTrace();
-				}
-			} catch (TransformerConfigurationException e) {
-				e.printStackTrace();
-			}
+    		String updatedRule=tempRule.toString();
+    		if(changeRuleName)
+    			updatedRule=updatedRule.replaceAll("<xsl:attribute name=\"errorCode\">(.?)*</xsl:attribute>", "<xsl:attribute name=\"errorCode\">"+argRuleName+"</xsl:attribute>");
+    		else
+    			updatedRule=updatedRule.replaceAll("<xsl:attribute name=\"RejectingAgency\">(.?)*</xsl:attribute>", "<xsl:attribute name=\"RejectingAgency\">"+argAgency+"</xsl:attribute>");
+    		
+    		System.err.println("Updated:\n"+updatedRule);
+            
+   
 				//=====================================================================/
 
 			//Store previous stuff to a buffer
@@ -208,7 +152,7 @@ public class TextEditor {
     		
     		//add new content
     		//resultText.append(lines[beginTag]);
-    		resultText.append("   "+updatedRule+"\n");
+    		resultText.append(updatedRule);
     		//resultText
     		//resultText.append(tempRule);
     		
@@ -219,6 +163,7 @@ public class TextEditor {
     		
     		//print out buffer to textArea
     		this.textArea.setText(resultText.toString());
+    		System.out.println("prevCaretPos:"+prevCaretPos);
     		this.textArea.setCaretPosition(prevCaretPos);
     	}else{ //in a completely new area
     		int curPos=this.textArea.getCaretPosition();
@@ -261,85 +206,31 @@ public class TextEditor {
     	//test to see if cursor is within a rule already, if so try and append to its list of conditions
     	if(beginTag!=-1 && endTag!=-1){
     		System.out.println("INSIDE a rule!");
-    		//convert to string
-    		StringBuffer tempRule=new StringBuffer();
+     		StringBuffer tempRule=new StringBuffer();
     		for(int i=beginTag;i<=endTag;i++){
-    			if(i==beginTag && !lines[i].startsWith(BEGIN_RULE)){//trimming the beginning line so Begin tag will be parsed only
-    				System.out.println("Need to trim Beginning!");
-    				int idx=lines[i].indexOf(BEGIN_RULE);
-					tempRule.append(lines[i].substring(idx)+"\n");
-    			
-    			}else if(i==endTag && !lines[i].endsWith(END_RULE)){//trimming the end line so End tag will only be parsed
-    				//int idx=lines[i].lastIndexOf(END_RULE);
-    				int idx2=lines[i].lastIndexOf(END_COMMENT);
-    				tempRule.append(lines[i].substring(0,idx2+END_COMMENT.length()));
-    				System.out.println("Needs to trim END!");
-    			}else{
-    				tempRule.append(lines[i]+"\n");
-    			}
+    			tempRule.append(lines[i]+"\n");
 			}//end for i
-
     		
-    		//string -> XML dom
-    		DocumentBuilder db;
-    		Document doc=null;
-			try {
-				db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-           		InputSource is = new InputSource();
-        		is.setCharacterStream(new StringReader(tempRule.toString()));
-        		try {
-					doc = db.parse(is);
-				} catch (SAXException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-        		
-			} catch (ParserConfigurationException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}//end try-catch
+ 
+    		
+    		String updatedRule=tempRule.toString();
 
-    		//add new condition to test attribute
-			//TODO Consider using Apache XmlBeans and XmlCursor
-			if(doc!=null){
-				doc.getDocumentElement().normalize();
-				
-				String before=doc.getDocumentElement().getAttribute("test");
-				if("".equals(before)){
-					doc.getDocumentElement().setAttribute("test",argStr);
-				}else{
-					doc.getDocumentElement().setAttribute("test",before+" "+conjunction + " " + argStr );
-				}
-
-			}else{
-				return;
-			}			
+    		Pattern p = Pattern.compile("<xsl:if test=\"(.*?)*\"");
+            Matcher m = p.matcher(updatedRule);
+            StringBuffer sb = new StringBuffer();
+            while (m.find()) {
+            	String test=m.group().substring(0,m.group().length()-1);
+            	System.err.println("test:"+test);
+            	//test=test.substring(1,test.length()-2);
+                if(m.group().contains("test=\"\""))
+                	m.appendReplacement(sb, test+argStr+"\"");
+                else
+                	m.appendReplacement(sb, test+" "+conjunction+" "+argStr+"\"");
+            }
+            m.appendTail(sb);
+            updatedRule=sb.toString();
 			
-			//Update rule: XML dom -> string
-			String updatedRule="";
-			TransformerFactory tf = TransformerFactory.newInstance();
-			Transformer transformer;
-			try {
-				transformer = tf.newTransformer();
-				transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-				StringWriter writer = new StringWriter();
-				
-				try {
-					transformer.transform(new DOMSource(doc), new StreamResult(writer));
-					updatedRule= writer.getBuffer().toString().replace("&amp;","&");
-					
-					
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (TransformerConfigurationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("UpdatedRule: "+updatedRule);
-			System.out.println("After: "+doc.getDocumentElement().getAttribute("test"));
+    		
 			//=====================================================================/
 
 			//Store previous stuff to a buffer
@@ -348,7 +239,7 @@ public class TextEditor {
     		}//end for i
     		
     		//add new content
-    		resultText.append("   "+updatedRule+"\n");
+    		resultText.append(updatedRule);
     		
     		//store latter stuff to buffer
     		for(int i=endTag+1;i<lines.length;i++){

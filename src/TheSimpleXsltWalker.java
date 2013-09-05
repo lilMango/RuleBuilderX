@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 import com.intuit.cg.lang.simplexslt.*;
 
 
-public class XsltVisitor extends SimpleXsltBaseVisitor<STO>{
+public class TheSimpleXsltWalker extends SimpleXsltBaseVisitor<STO>{
 	static ParseTreeProperty<STO> xslt = new ParseTreeProperty<STO>();
 	
 	public STO getXslt(ParseTree ctx){

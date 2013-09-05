@@ -297,11 +297,8 @@ public class SimpleXsltCompiler {
 		
 		//Create subtree starting at rule 'mystart'
 		ParseTree tree = parser.mystart();
-		XsltEmitter xsltEmitter=new XsltEmitter();
-		/*ParseTreeWalker.DEFAULT.walk(xsltEmitter,tree);//**USES LISTENERS
-		return xsltEmitter.getXslt(tree);
-		*/
-		XsltVisitor v = new XsltVisitor();
+		
+		TheSimpleXsltWalker v = new TheSimpleXsltWalker();
 		STO fw=v.visit(tree);
 		
 		System.out.println("===@SimpleXsltCompiler.translateToXslt "+fw.getName());
