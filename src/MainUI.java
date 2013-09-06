@@ -8,6 +8,7 @@ import com.intuit.cg.tools.filesystem.*;
 import com.intuit.cg.tools.rules.utils.TextEditor;
 import com.intuit.cg.tools.rules.utils.XsltBuilder;
 import com.intuit.cg.tools.rules.utils.XsltEncoder;
+import com.intuit.fsapp.Validator;
 
 //import com.intuit.fsapp.Validator;
 import java.awt.Component;
@@ -37,6 +38,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -46,38 +48,23 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.ScrollPane;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.fife.ui.autocomplete.*;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.swing.custom.components.ClosableTabbedPane;
 import org.swing.custom.components.WorkspacePanel;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
 
 
 /**
@@ -100,7 +87,7 @@ public class MainUI extends JFrame {
     private SimpleXsltCompiler simpleXsltCompiler;
     private ConfigFiler configFiler= new ConfigFiler();
     
-    String[] agencyArr={"AK","AL","AR","AS","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID",
+    String[] agencyArr={"IRS","AK","AL","AR","AS","AZ","CA","CO","CT","DC","DE","FL","GA","GU","HI","IA","ID",
 			"IL","IN","KS","KY","LA","MA","MD","ME","MH","MI","MN","MO","MS","MT","NC","ND","NE","NH","NJ","NM","NV","NY",
 			"OH","OK","OR","PA","PR","PW","RI","SC","SD","TN","TX","UT","VA","VI","VT","WA","WI","WV","WY"};
     /**
@@ -113,6 +100,7 @@ public class MainUI extends JFrame {
 
         initComponents();
         initFileTreeViewer();
+        //initXsltRuleViewer();
         //initCodeTextArea();//jTabbedPane1's post-creation code
         xsltBuilder = new XsltBuilder();
         arrTextEditors = new ArrayList<TextEditor>();
@@ -147,6 +135,10 @@ public class MainUI extends JFrame {
                             tempTE.saveFile();
                             mapTabTE.put(tempC, tempTE);
                             jTabbedPane1.setTitleAt(tempI,tempTE.getName());
+
+                            jTreeXsltRules=new JTree(RuleIndex.listRules(tempTE.getTextArea().getText().toString()));
+                            initXsltRuleViewer();
+                            jScrollPane3.setViewportView(jTreeXsltRules);
                         }
                     }else{
                         System.out.println("invalid file");
@@ -160,33 +152,6 @@ public class MainUI extends JFrame {
                 }
             } else if (e.getID() == KeyEvent.KEY_TYPED){
             	updateEditedFileTitle();
-            	String tmp="   <xsl:if test=\"a < b\">\n"+
-            				"\t<Error>\n"+
-            				"\t\t<xsl:attribute name=\"errorCode\">faf</xsl:attribute>\n"+
-            				"\t\t<xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
-            				"\t\t<xsl:attribute name=\"RejectingAgency\">AK</xsl:attribute>\n"+
-            				"\t</Error>\n"+
-            				"  </xsl:if>"+
-            				
-            				"   <xsl:if test=\"a < b\">\n"+
-            				"\t<Error>\n"+
-            				"\t\t<xsl:attribute name=\"errorCode\">faf</xsl:attribute>\n"+
-            				"\t\t<xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
-            				"\t\t<xsl:attribute name=\"RejectingAgency\">AK</xsl:attribute>\n"+
-            				"\t</Error>\n"+
-            				"  </xsl:if>"+
-            				
-							"   <xsl:if test=\"a <= b < 3434\">\n"+
-							"\t<Error>\n"+
-							"\t\t<xsl:attribute name=\"errorCode\">faf</xsl:attribute>\n"+
-							"\t\t<xsl:attribute name=\"type\">rejectToCustomer</xsl:attribute>\n"+
-							"\t\t<xsl:attribute name=\"RejectingAgency\">AK</xsl:attribute>\n"+
-							"\t</Error>\n"+
-							"  </xsl:if>"
-            			;
-            	
-            	XsltEncoder.encode(tmp);
-               
             	
             }
             return false;
@@ -194,9 +159,6 @@ public class MainUI extends JFrame {
 
     }//end class MyDispatcher
     
-    /*
-     * sets up the state agency spinner
-     */	
 
     /*
      *  Used to initialize the Syntax highlighted Code text area
@@ -220,6 +182,33 @@ public class MainUI extends JFrame {
       });//end addChangeListener()
       
     }//end initCodeTextArea()
+    
+    private void initXsltRuleViewer(){
+    	jTreeXsltRules.addTreeSelectionListener(new TreeSelectionListener(){
+    	
+			public void valueChanged(TreeSelectionEvent evt) {
+				//RuleIndex ruleIndex=(RuleIndex)jTreeXsltRules.getLastSelectedPathComponent();
+				
+				String ruleIndex=jTreeXsltRules.getLastSelectedPathComponent()+"";;
+				
+				if(ruleIndex!=null){
+					
+					  Component tempC = jTabbedPane1.getSelectedComponent();
+	                    int tempI = jTabbedPane1.getSelectedIndex();
+	                    TextEditor tempTE=mapTabTE.get(tempC);
+
+	                    if(tempTE!=null){
+	                    		String tmp[]=ruleIndex.split(" ");
+	                    		String idx=tmp[0].split("\\[")[1].split("\\]")[0];
+	                    		
+	                    		tempTE.setCursorAtLine(Integer.parseInt(idx)-1);
+	                            mapTabTE.put(tempC, tempTE);
+	                            jTabbedPane1.setTitleAt(tempI,tempTE.getName());
+	                    }
+				}
+			}
+		});
+    }
     /*
      *  Method called to initialize the JTree with the model of the XSLT files
      *  Will eventually add to model the XSLT/XML structure of the file
@@ -243,11 +232,16 @@ public class MainUI extends JFrame {
                     jTabbedPane1.add(file.getName(),tE.getRTextScrollPane());
                     mapTabTE.put(tE.getRTextScrollPane(), tE);
                     FileReaderWriter fileRW= new FileReaderWriter(file);
-                    
-                    //textArea.setText(fileRW.toString());
                     tE.setText(fileRW.toString());
                     jTabbedPane1.setSelectedIndex(jTabbedPane1.getTabCount()-1);
                     
+                    
+                    jTreeXsltRules=new JTree(RuleIndex.listRules(fileRW.toString()));
+                    initXsltRuleViewer();
+                    jScrollPane3.setViewportView(jTreeXsltRules);
+
+          
+	                
                 }//end if !isDir
             }//end valueChanged()
         });//end treeSelectionListener()
@@ -272,13 +266,7 @@ public class MainUI extends JFrame {
 	            	 		    JOptionPane.PLAIN_MESSAGE);
 	            	 
 	            	 	if (result == JOptionPane.OK_OPTION) {
-	                        /*
-	            	 		for (WorkspacePanel.FieldTitle fieldTitle : WorkspacePanel.FieldTitle
-	                              .values()) {
-	                           System.out.println("\t"+fieldTitle+":  "+workspacePanel.getFieldText(fieldTitle));
-	                           
-	                        }
-	                        */
+
 	                        WorkspacePanel.FieldTitle name = WorkspacePanel.FieldTitle.NAME;
 	                        WorkspacePanel.FieldTitle dir = WorkspacePanel.FieldTitle.ROOTDIR;
 	                        configFiler.addWorkspace(workspacePanel.getFieldText(name),workspacePanel.getFieldText(dir));
@@ -289,7 +277,7 @@ public class MainUI extends JFrame {
 	                        File file=new File(workspacePanel.getFieldText(dir));
 	    	                fileSystemModel = new FileSystemModel(file);
 	   	                    jTreeFileSystem.setModel(fileSystemModel);
-	   	                    //TODO fix adding workspaces
+
 	                     }
 	            	    
 	            	    
@@ -442,7 +430,7 @@ public class MainUI extends JFrame {
         splitPaneLeftRight.setDividerSize(10);
         splitPaneLeftRight.setOneTouchExpandable(true);
 
-        splitPaneLeft.setDividerLocation(4000);//400
+        splitPaneLeft.setDividerLocation(400);//400
         splitPaneLeft.setDividerSize(10);
         splitPaneLeft.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         splitPaneLeft.setOneTouchExpandable(true);
@@ -713,7 +701,6 @@ public class MainUI extends JFrame {
 			}
 
 			public void removeUpdate(DocumentEvent arg0) {
-				// TODO Auto-generated method stub
 				
 			}
         });
@@ -729,7 +716,7 @@ public class MainUI extends JFrame {
         btnTest.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 //jButton1ActionPerformed(evt);
-            	//Validator.validate();
+            	Validator.validate();
             }
         });
 
@@ -842,7 +829,7 @@ public class MainUI extends JFrame {
      * Used to mark with '*' when a document is not saved/edited in the title of file
      */
     private void updateEditedFileTitle(){
-    	System.out.println("zomh");
+    	System.out.println("updateEditedFile()");
     	
         Component tempC = jTabbedPane1.getSelectedComponent();
         int tempI = jTabbedPane1.getSelectedIndex();

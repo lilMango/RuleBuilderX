@@ -107,6 +107,7 @@ public class TextEditor {
     	
     	try {
 			currLine=this.textArea.getLineOfOffset(this.textArea.getCaretPosition());
+
 		} catch (BadLocationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -123,8 +124,10 @@ public class TextEditor {
 
     		//convert to string
     		if(changeRuleName){
-    			lines[beginTag-1]="<!-- Begin "+argRuleName+"-->";
-    			lines[endTag+1]="<!-- End "+argRuleName+"-->";
+    			if(lines[beginTag-1].contains("<!--"))
+    				lines[beginTag-1]="<!-- Begin "+argRuleName+"-->";
+    			if(lines[endTag+1].contains("<!--"));
+    				lines[endTag+1]="<!-- End "+argRuleName+"-->";
     		}
     		
     		StringBuffer tempRule=new StringBuffer();
@@ -163,6 +166,7 @@ public class TextEditor {
     		
     		//print out buffer to textArea
     		this.textArea.setText(resultText.toString());
+    		System.out.println("textWidth:"+this.textArea.getColumns()+"*"+lines.length+" = "+lines.length*this.textArea.getColumns());
     		System.out.println("prevCaretPos:"+prevCaretPos);
     		this.textArea.setCaretPosition(prevCaretPos);
     	}else{ //in a completely new area
@@ -220,6 +224,8 @@ public class TextEditor {
             StringBuffer sb = new StringBuffer();
             while (m.find()) {
             	String test=m.group().substring(0,m.group().length()-1);
+            	test=test.replace("$", "\\$");
+            	
             	System.err.println("test:"+test);
             	//test=test.substring(1,test.length()-2);
                 if(m.group().contains("test=\"\""))
@@ -262,13 +268,7 @@ public class TextEditor {
     	    	
     }//appendRule(String)
     
-    
-    /*
-     *  Open and read file contents
-     */
-    public void readFile(File file){
-        
-    }//end readFile(File)
+   
     
     public void setIsSaved(boolean arg){
         isSaved=arg;
@@ -298,6 +298,15 @@ public class TextEditor {
             isSaved=true;
         }
     }//end saveFile()
+    
+    public void setCursorAtLine(int line){
+    	try {
+			this.textArea.setCaretPosition(this.textArea.getLineStartOffset(line));
+		} catch (BadLocationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
     public RTextScrollPane getRTextScrollPane(){
         return this.rScrollPane;
@@ -399,26 +408,5 @@ public class TextEditor {
     	return -1;
     }//end findEndTag(String[],int)
     
-    /*
-     * replaces text within textArea to encode to xslt form. ie. < turns to &lt
-     */
-    public void doXsltEncode(){
-    	
-    }
-    private class CompletionTask implements Runnable{
-    	String completion;
-    	int position;
-    	
-    	CompletionTask(String completion, int position){
-    		this.completion=completion;
-    		this.position=position;
-    	}
-		public void run() {
-			textArea.insert(completion, position);
-			textArea.setCaretPosition(position + completion.length());
-            textArea.moveCaretPosition(position);
-            //mode = Mode.COMPLETION;
-		}
-    	
-    }//end class CompletionTask
+  
 }//end class Editor
