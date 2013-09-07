@@ -1,8 +1,3 @@
-
-
-
-
-
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStream;
@@ -37,6 +32,20 @@ import com.intuit.cg.lang.simplexslt.ErrorSTO;
 import com.intuit.cg.lang.simplexslt.STO;
 import com.intuit.cg.lang.simplexslt.VarSTO;
 
+/*=====================================
+ * SimpleXsltCompiler
+ * ====================================
+ * 
+ * This is the main interface used to convert the simpleXslt language to Xslt
+ * 
+ * 
+ * Example:
+ * String simpleXslt="{A+B}";
+ * SimpleXsltCompiler myCompiler=new SimpleXsltCompiler();
+ * String translatedXslt=myCompiler.translateToXslt(simpleXslt);
+ * 
+ */
+
 public class SimpleXsltCompiler {
 
 	public static final String LEXER_START_RULE_NAME = "tokens";
@@ -54,6 +63,9 @@ public class SimpleXsltCompiler {
 	protected String encoding = null;
 	protected boolean SLL = false;
 	
+	/*
+	 * Defined with args so you can get gui tree output
+	 */
 	public SimpleXsltCompiler(String[] args) throws Exception {
 
 		int i=0;
@@ -98,7 +110,9 @@ public class SimpleXsltCompiler {
 		}//end while
 	}//end constructor	
 	
-
+	public SimpleXsltCompiler(){
+		
+	}
 
 	/*parsing a single string*/
 	public void processString(String arg) throws Exception {

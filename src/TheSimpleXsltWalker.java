@@ -3,7 +3,18 @@ import org.antlr.v4.runtime.tree.ParseTreeProperty;
 
 import com.intuit.cg.lang.simplexslt.*;
 
-
+/*
+ * This class defines how to handle the logic the written rules/expressions. In other words,
+ * it makes sense of this simpleXSLT language and evaluates them into their XSLT translations.
+ * 
+ * THIS IS WHERE THE XSLT TRANSLATIONS OCCUR and are DEFINED
+ * 
+ * example:
+ * TheSimpleXsltWalker v = new TheSimpleXsltWalker();
+		STO sto=v.visit(tree);
+		sto.getName();//will return the string representation of the XSLT translation
+ * 
+ */
 public class TheSimpleXsltWalker extends SimpleXsltBaseVisitor<STO>{
 	static ParseTreeProperty<STO> xslt = new ParseTreeProperty<STO>();
 	

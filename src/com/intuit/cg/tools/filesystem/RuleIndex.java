@@ -8,6 +8,9 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
+/*
+ * Is used to define Xslt Rule Navigator Tree
+ */
 public class RuleIndex {
 	private String ruleName;
 	private int lineNum;
@@ -32,7 +35,7 @@ public class RuleIndex {
 
 		Vector<RuleIndex> vec=new Vector<RuleIndex>();
 		String lines[]=input.split("\n");
-		System.out.println("==============================");
+		
 		for(int i=0;i<lines.length;i++){
 			//System.out.println(lines[i]);
 			if(lines[i].trim().matches("<xsl:attribute name=\"errorCode\">(.?)*</xsl:attribute>")){
@@ -45,8 +48,6 @@ public class RuleIndex {
 			
 			}
 		}
-		System.out.println("==============================");
-		
 		
 		
 		return vec;

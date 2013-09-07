@@ -23,7 +23,7 @@ import com.intuit.cg.fs.tools.fsapp.util.XslTransformer;
 
 public class Validator {
 
-public static RulesDialog validate(){
+public static RulesDialog validate(String rulesPath,String targetPath){
 	List agencyFilePath = new ArrayList();
 	List agencyList = new ArrayList();
 	List agencySchemaPath = new ArrayList();
@@ -32,11 +32,12 @@ public static RulesDialog validate(){
     String xmlOutput = "";        
 
      
-
+    if("".equals(rulesPath)||"".equals(targetPath)||rulesPath==null||targetPath==null)
+    	return null;
         //String filename = FileUtil.getFileNameWithoutExtension(input.getName());
-    String rulesPath ="c:\\ty13\\mpaysan_V07C294E23E1_3892_ty13\\content\\services\\ef\\rules\\trunk\\mef\\src\\main\\resources\\rules\\";// localRulesBrowse.getFileLocation();
-    File fcsDir=new File("C:\\13work\\13per\\output");
-    File targetFolder = new File("C:\\13work\\13per\\output");//fcsDir;// TurboTax files-ish
+    rulesPath ="c:\\ty13\\mpaysan_V07C294E23E1_3892_ty13\\content\\services\\ef\\rules\\trunk\\mef\\src\\main\\resources\\rules\\";// localRulesBrowse.getFileLocation();
+    targetPath="C:\\13work\\13per\\output";
+    File targetFolder = new File(targetPath);//fcsDir;// TurboTax files-ish
     File[] listOfFiles = targetFolder.listFiles();
 
     //Figure out what state agency to select/test

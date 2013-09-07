@@ -17,6 +17,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -52,6 +53,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.Frame;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 
@@ -102,6 +104,7 @@ public class MainUI extends JFrame {
         initFileTreeViewer();
         //initXsltRuleViewer();
         //initCodeTextArea();//jTabbedPane1's post-creation code
+        initToolTips();
         xsltBuilder = new XsltBuilder();
         arrTextEditors = new ArrayList<TextEditor>();
         mapTabTE = new HashMap<Component,TextEditor>();
@@ -136,7 +139,7 @@ public class MainUI extends JFrame {
                             mapTabTE.put(tempC, tempTE);
                             jTabbedPane1.setTitleAt(tempI,tempTE.getName());
 
-                            jTreeXsltRules=new JTree(RuleIndex.listRules(tempTE.getTextArea().getText().toString()));
+                            jTreeXsltRules=new JTree(RuleIndex.listRules(tempTE.getTextArea().getText()));
                             initXsltRuleViewer();
                             jScrollPane3.setViewportView(jTreeXsltRules);
                         }
@@ -178,6 +181,24 @@ public class MainUI extends JFrame {
       jTabbedPane1.addChangeListener(new ChangeListener(){
     	  public void stateChanged(ChangeEvent e){
     		  System.out.println("Changed tabs to tab:"+jTabbedPane1.getSelectedIndex());
+    		  
+    		  Component tempC = jTabbedPane1.getSelectedComponent();
+               int tempI = jTabbedPane1.getSelectedIndex();
+               TextEditor tempTE=mapTabTE.get(tempC);
+
+               if(tempTE!=null){
+                 
+                       tempTE.saveFile();
+                       
+                       jTreeXsltRules=new JTree(RuleIndex.listRules(tempTE.getTextArea().getText()));
+                       initXsltRuleViewer();
+                       mapTabTE.put(tempC, tempTE);
+                       jTabbedPane1.setTitleAt(tempI,tempTE.getName());
+
+                       jScrollPane3.setViewportView(jTreeXsltRules);
+                       
+               }
+               
     	  }
       });//end addChangeListener()
       
@@ -356,7 +377,8 @@ public class MainUI extends JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
-
+        jMenu3 = new javax.swing.JMenu();
+        
         txtQueryBar.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
         txtQueryBar.setCodeFoldingEnabled(false);
         txtQueryBar.setAntiAliasingEnabled(true);
@@ -424,8 +446,6 @@ public class MainUI extends JFrame {
         splitPaneRight.setDividerSize(10);
         splitPaneRight.setOneTouchExpandable(true);
 
-        paneTermHelper.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder("Term Helper")));
-
         
         splitPaneLeftRight.setDividerSize(10);
         splitPaneLeftRight.setOneTouchExpandable(true);
@@ -440,7 +460,8 @@ public class MainUI extends JFrame {
 
      
 
-        paneTermHelper.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder("Term Helper")));
+////////////////////////////////////////////////////////////////////////////////////////////Right side
+paneTermHelper.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createTitledBorder("Term Helper")));
 
         txtTermHelper.setText("ie. is significant");
         txtTermHelper.addActionListener(new java.awt.event.ActionListener() {
@@ -450,6 +471,14 @@ public class MainUI extends JFrame {
         });
 
         btnTermHelper.setText("search");
+
+        btnTest.setText("Test");
+        btnTest.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                //jButton1ActionPerformed(evt);
+            	Validator.validate(txtLocalRules.getText(),txtTargetDir.getText());
+            }
+        });
 
         jLabel9.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
         jLabel9.setText("is significant: just type in a field name");
@@ -480,26 +509,101 @@ public class MainUI extends JFrame {
                 .addGap(0, 113, Short.MAX_VALUE))
         );
 
+        btnTargetDir = new JButton();
+        btnTargetDir.setText("Browse...");
+        btnTargetDir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+             //   btnTargetDirActionPerformed(evt);
+            }
+        });
+
+        btnLocalRules =  new JButton();
+        btnLocalRules.setText("Browse...");
+        
+        final JFileChooser chooser=new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+ 	    
+        
+ 	   btnLocalRules.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+         	  
+           	    int returnVal = chooser.showOpenDialog(new Frame());
+           	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+           	       System.out.println("You chose to open this file: " +
+           	            chooser.getSelectedFile()+"");
+           	       txtLocalRules.setText(chooser.getSelectedFile().toString());
+           	    }//end if
+           	    
+            }//end actionPerformed()
+        });
+ 	   
+ 	  btnTargetDir.addActionListener(new java.awt.event.ActionListener() {
+          public void actionPerformed(java.awt.event.ActionEvent evt) {
+       	  
+         	    int returnVal = chooser.showOpenDialog(new Frame());
+         	    if(returnVal == JFileChooser.APPROVE_OPTION) {
+         	       System.out.println("You chose to open this file: " +
+         	            chooser.getSelectedFile()+"");
+         	       txtTargetDir.setText(chooser.getSelectedFile().toString());
+         	    }//end if
+         	    
+          }//end actionPerformed()
+      });
+ 	   
+        lblLocalRules=new JLabel("Local Rules:");
+ 
+        lblTargetDir= new JLabel("FCS Result:");
+        
+        txtTargetDir=new JTextField();
+        txtLocalRules=new JTextField();
+        	
         javax.swing.GroupLayout paneRightLayout = new javax.swing.GroupLayout(paneRight);
         paneRight.setLayout(paneRightLayout);
         paneRightLayout.setHorizontalGroup(
-                paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(paneRightLayout.createSequentialGroup()
-                    .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 150, Short.MAX_VALUE))
-                .addGroup(paneRightLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(btnTest)
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            );
-            paneRightLayout.setVerticalGroup(
-                paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(paneRightLayout.createSequentialGroup()
-                    .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(42, 42, 42)
-                    .addComponent(btnTest)
-                    .addContainerGap(519, Short.MAX_VALUE))
-            );
+            paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, paneRightLayout.createSequentialGroup()
+                .addGroup(paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(paneRightLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(paneRightLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtTargetDir, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnTest, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtLocalRules, javax.swing.GroupLayout.Alignment.LEADING))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnTargetDir)
+                    .addComponent(btnLocalRules))
+                .addGap(71, 71, 71))
+            .addGroup(paneRightLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lblLocalRules)
+                    .addComponent(lblTargetDir))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        paneRightLayout.setVerticalGroup(
+            paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(paneRightLayout.createSequentialGroup()
+                .addComponent(paneTermHelper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(65, 65, 65)
+                .addComponent(lblTargetDir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnTargetDir)
+                    .addComponent(txtTargetDir, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblLocalRules)
+                .addGap(1, 1, 1)
+                .addGroup(paneRightLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtLocalRules, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnLocalRules))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnTest)
+                .addContainerGap(403, Short.MAX_VALUE))
+        );
 
         splitPaneRight.setRightComponent(paneRight);
         splitPaneRight.setResizeWeight(1.0);
@@ -712,13 +816,6 @@ public class MainUI extends JFrame {
             }
         });
         */
-        btnTest.setText("Test");
-        btnTest.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                //jButton1ActionPerformed(evt);
-            	Validator.validate();
-            }
-        });
 
      
         radBtnAnd.addActionListener(new java.awt.event.ActionListener() {
@@ -734,7 +831,10 @@ public class MainUI extends JFrame {
 
         jMenu2.setText("Edit");
         jMenuBar1.add(jMenu2);
-
+        
+        jMenu3.setText("Help");
+        jMenuBar1.add(jMenu3);
+        
         setJMenuBar(jMenuBar1);
         
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -906,6 +1006,7 @@ public class MainUI extends JFrame {
     private JSpinner spinnerAgency;
     private JMenu jMenu1;
     private JMenu jMenu2;
+    private JMenu jMenu3;
     private JMenuBar jMenuBar1;
     private JScrollPane jScrollPane1;
     private JScrollPane jScrollPane2;
@@ -928,4 +1029,23 @@ public class MainUI extends JFrame {
     private JSplitPane splitPaneLeft;
     private JSplitPane splitPaneLeftRight;
     private JSplitPane splitPaneRight;
+    private JTextField txtTargetDir;
+    private JTextField txtLocalRules;
+    private JLabel lblTargetDir;
+    private JLabel lblLocalRules;
+    private JButton btnLocalRules;
+    private JButton btnTargetDir;
+    
+    private void initToolTips(){
+    	txtQueryBar.setToolTipText("1) Variable names are enclosed in {}. Ex. variable424x/fold1/fold2 is {variable424x/fold1/fold2}\n\n"+
+    							   "2) Can use relational (<,<=,etc.) and mathematical conversions with castings (ie. {variable} < 3\n\n"+
+    							   "");
+    	comboBoxWorkspace.setToolTipText("Selecting a working directory to work from");
+    	jTreeFileSystem.setToolTipText("Select a working directory of files to edit");
+    	jScrollPane3.setToolTipText("Select an .xsl document and view all of its rules");
+    	btnTest.setToolTipText("Validate and test .xsl files with these xslt rules you've written");
+    	
+    	txtLocalRules.setToolTipText("Select directory for the agency rules. \n\n Example in C:\\content\\services\\ef\\rules\\trunk\\mef\\src\\main\\resources\\rules\\");
+    	txtTargetDir.setToolTipText("Select file to validate. \n\n Example. *-FILING.xml or *-Extension.xml");
+    }
 }
